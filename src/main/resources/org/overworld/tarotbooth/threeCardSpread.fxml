@@ -21,30 +21,21 @@
         </AnchorPane>
         <AnchorPane prefHeight="600.0" prefWidth="660.0">
             <children>
-                <ImageView fitHeight="300.0" layoutX="39.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                <ImageView fx:id="pastImage" fitHeight="300.0" layoutX="39.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
                     <image>
                         <Image url="@riderWaite/medium/M07.png" />
                     </image>
                 </ImageView>
-                <ImageView fitHeight="300.0" layoutX="266.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                <ImageView fx:id="presentImage" fitHeight="300.0" layoutX="266.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="@riderWaite/medium/M17R.png" />
+                        <Image url="@riderWaite/medium/M17.png" />
                     </image>
                 </ImageView>
-                <ImageView fitHeight="300.0" layoutX="484.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                <ImageView fx:id="futureImage" fitHeight="300.0" layoutX="484.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
                     <image>
                         <Image url="@riderWaite/medium/W11.png" />
                     </image>
                 </ImageView>
-            </children>
-        </AnchorPane>
-        <AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="660.0" stylesheets="@global.css">
-            <children>
-                <MenuButton fx:id="settingsMenu" layoutX="6.0" layoutY="1.0" opacity="0.5" text="Settings">
-                    <items>
-                        <CheckMenuItem mnemonicParsing="false" text="Past/Future" />
-                    </items>
-                </MenuButton>
             </children>
         </AnchorPane>
     </children>

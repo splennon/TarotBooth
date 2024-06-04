@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox alignment="CENTER" prefHeight="428.0" prefWidth="170.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+   <children>
+      <Label text="Sensors">
+         <font>
+            <Font name="Avenir Medium" size="24.0" />
+         </font>
+      </Label>
+      <Separator prefHeight="30.0" prefWidth="170.0" />
+      <ToggleButton fx:id="approachToggle" mnemonicParsing="false" text="Approach" />
+      <Separator prefHeight="30.0" prefWidth="200.0" />
+      <ToggleButton fx:id="presenceToggle" mnemonicParsing="false" text="Presence" />
+      <Separator prefHeight="30.0" prefWidth="200.0" />
+      <Label text="Past">
+         <font>
+            <Font name="Avenir Medium" size="18.0" />
+         </font>
+      </Label>
+      <TextField fx:id="pastButton" text="M16" />
+      <Button fx:id="pastButton" mnemonicParsing="false" text="Detect" />
+      <Separator prefHeight="30.0" prefWidth="200.0" />
+      <Label text="Present">
+         <font>
+            <Font name="Avenir Medium" size="18.0" />
+         </font>
+      </Label>
+      <TextField fx:id="presentText" text="W06" />
+      <Button fx:id="presentButton" mnemonicParsing="false" text="Detect" />
+      <Separator prefHeight="30.0" prefWidth="200.0" />
+      <Label text="Future">
+         <font>
+            <Font name="Avenir Medium" size="18.0" />
+         </font>
+      </Label>
+      <TextField fx:id="futureText" text="M19" />
+      <Button fx:id="futureButton" mnemonicParsing="false" text="Detect" />
+      <Separator opacity="0.0" prefHeight="20.0" prefWidth="200.0" />
+   </children>
+</VBox>

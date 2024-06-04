@@ -14,5 +14,5 @@
 }
 .ezzieBig{
     -fx-background-image: url("images/ezzie.jpeg");
-    -fx-background-repeat: none;
+    -fx-background-repeat: no-repeat;
 }

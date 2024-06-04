@@ -7,22 +7,35 @@ package org.overworld.tarotbooth;
 
 import java.net.URL;
 import java.util.ResourceBundle;
+
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.control.MenuButton;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.MouseEvent;
+import javafx.scene.control.Button;
+import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 
-public class ThreeCardSpreadController implements Initializable {
+public class DebugController implements Initializable {
+    
+    @FXML
+    private Button pastButton;
 
     @FXML
-    private ImageView pastImage;
+    private TextField presentText;
 
     @FXML
-    private ImageView presentImage;
+    private TextField futureText;
 
     @FXML
-    private ImageView futureImage;
+    private Button futureButton;
+
+    @FXML
+    private Button presentButton;
+
+    @FXML
+    private ToggleButton presenceToggle;
+
+    @FXML
+    private ToggleButton approachToggle;
 	
     /**
      * Initializes the controller class.
