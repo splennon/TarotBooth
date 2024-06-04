@@ -1,0 +1,18 @@
+.backgrounded{
+    -fx-background-image: url("images/bg2.png");
+    -fx-opacity: 0.2;
+    -fx-background-color: antiquewhite;
+    -fx-background-repeat: repeat;   
+    -fx-background-size: 120 120;
+}
+.backgrounded2{
+    -fx-background-image: url("images/bg1.png");
+    -fx-opacity: 0.2;
+    -fx-background-color: antiquewhite;
+    -fx-background-repeat: repeat;   
+    -fx-background-size: 240 240;
+}
+.ezzieBig{
+    -fx-background-image: url("images/ezzie.jpeg");
+    -fx-background-repeat: none;
+}

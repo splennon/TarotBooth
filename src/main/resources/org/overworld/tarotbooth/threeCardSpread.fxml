@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.text.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<StackPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="390" prefWidth="800" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.ThreeCardSpreadController">
+    <children>
+        <AnchorPane id="AnchorPane" prefHeight="410.0" prefWidth="660.0" styleClass="backgrounded2" stylesheets="@global.css">
+            <children>
+                <Rectangle arcHeight="15.0" arcWidth="15.0" blendMode="MULTIPLY" fill="#a4bde8" height="300.0" layoutX="35.0" layoutY="45.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" width="181.0" />
+                <Rectangle arcHeight="15.0" arcWidth="15.0" blendMode="MULTIPLY" fill="#a4bde8" height="300.0" layoutX="260.0" layoutY="45.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" width="181.0" />
+                <Rectangle arcHeight="15.0" arcWidth="15.0" blendMode="MULTIPLY" fill="#a4bde8" height="300.0" layoutX="480.0" layoutY="45.0" stroke="BLACK" strokeType="OUTSIDE" strokeWidth="4.0" width="181.0" />
+            </children>
+        </AnchorPane>
+        <AnchorPane prefHeight="600.0" prefWidth="660.0">
+            <children>
+                <ImageView fitHeight="300.0" layoutX="39.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@riderWaite/medium/M07.png" />
+                    </image>
+                </ImageView>
+                <ImageView fitHeight="300.0" layoutX="266.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@riderWaite/medium/M17R.png" />
+                    </image>
+                </ImageView>
+                <ImageView fitHeight="300.0" layoutX="484.0" layoutY="44.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@riderWaite/medium/W11.png" />
+                    </image>
+                </ImageView>
+            </children>
+        </AnchorPane>
+        <AnchorPane id="AnchorPane" prefHeight="600.0" prefWidth="660.0" stylesheets="@global.css">
+            <children>
+                <MenuButton fx:id="settingsMenu" layoutX="6.0" layoutY="1.0" opacity="0.5" text="Settings">
+                    <items>
+                        <CheckMenuItem mnemonicParsing="false" text="Past/Future" />
+                    </items>
+                </MenuButton>
+            </children>
+        </AnchorPane>
+    </children>
+</StackPane>
