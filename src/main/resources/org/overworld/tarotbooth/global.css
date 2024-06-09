@@ -16,3 +16,7 @@
     -fx-background-image: url("images/ezzie.jpeg");
     -fx-background-repeat: no-repeat;
 }
+.bennyBig{
+    -fx-background-image: url("images/benny.jpeg");
+    -fx-background-repeat: no-repeat;
+}

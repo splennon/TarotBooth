@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" prefHeight="428.0" prefWidth="170.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
+<VBox alignment="CENTER" prefHeight="428.0" prefWidth="170.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.DebugController">
    <children>
       <Label text="Sensors">
          <font>
@@ -27,7 +27,7 @@
             <Font name="Avenir Medium" size="18.0" />
          </font>
       </Label>
-      <TextField fx:id="pastButton" text="M16" />
+      <TextField fx:id="pastText" text="M16" />
       <Button fx:id="pastButton" mnemonicParsing="false" text="Detect" />
       <Separator prefHeight="30.0" prefWidth="200.0" />
       <Label text="Present">
