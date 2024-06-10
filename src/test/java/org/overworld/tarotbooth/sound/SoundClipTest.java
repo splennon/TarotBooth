@@ -11,7 +11,7 @@ class SoundClipTest {
 
 	@Test
 	void test() throws InterruptedException, UnsupportedAudioFileException, IOException, LineUnavailableException {
-		SoundClip sc = new SoundClip("music_carnival.mp3");
+		SoundClip sc = new SoundClip("U01.mp3");
 		sc.play();
 		Thread.sleep(10000);
 	}
