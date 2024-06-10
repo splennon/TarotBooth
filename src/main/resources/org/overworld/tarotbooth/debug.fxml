@@ -10,7 +10,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" prefHeight="428.0" prefWidth="170.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.DebugController">
+<VBox alignment="CENTER" prefHeight="428.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.DebugController">
    <children>
       <Label text="Sensors">
          <font>
@@ -46,5 +46,18 @@
       <TextField fx:id="futureText" text="M19" />
       <Button fx:id="futureButton" mnemonicParsing="false" text="Detect" />
       <Separator opacity="0.0" prefHeight="20.0" prefWidth="200.0" />
+      <Separator prefHeight="30.0" prefWidth="170.0" />
+      <HBox alignment="TOP_CENTER">
+         <children>
+            <Button fx:id="printerButton" mnemonicParsing="false" text="Printer Err" />
+            <Separator orientation="VERTICAL" />
+            <Button fx:id="timeoutButton" mnemonicParsing="false" text="Timeout" />
+            <Separator orientation="VERTICAL" />
+            <Button fx:id="advanceButton" mnemonicParsing="false" text="Advance" />
+            <Separator orientation="VERTICAL" />
+            <Button fx:id="placementButton" mnemonicParsing="false" text="Placement" />
+         </children>
+      </HBox>
+      <Separator opacity="0.0" prefWidth="200.0" />
    </children>
 </VBox>

@@ -27,11 +27,21 @@ public class DebugController implements Initializable {
 	private StateMachine<State, Trigger> statemachine = BoothApplication.getStateMachine();
 	private GameModel model = BoothApplication.getGameModel();
 	
+
     @FXML
     private Button pastButton;
 
     @FXML
+    private Button advanceButton;
+
+    @FXML
+    private Button placementButton;
+
+    @FXML
     private TextField presentText;
+
+    @FXML
+    private Button timeoutButton;
 
     @FXML
     private TextField pastText;
@@ -46,10 +56,14 @@ public class DebugController implements Initializable {
     private Button presentButton;
 
     @FXML
+    private Button printerButton;
+
+    @FXML
     private ToggleButton presenceToggle;
 
     @FXML
     private ToggleButton approachToggle;
+
 	
     @Override
     public void initialize(URL url, ResourceBundle rb) {
@@ -59,6 +73,10 @@ public class DebugController implements Initializable {
     	futureButton.setOnMouseClicked(this::future);
     	approachToggle.setOnAction(e -> statemachine.fire(Trigger.APPROACH_SENSOR));
     	presenceToggle.setOnAction(e -> statemachine.fire(Trigger.PRESENCE_SENSOR));
+    	advanceButton.setOnAction(e -> statemachine.fire(Trigger.ADVANCE));
+    	printerButton.setOnAction(e -> statemachine.fire(Trigger.PRINTER_ERROR));
+    	timeoutButton.setOnAction(e -> statemachine.fire(Trigger.TIMEOUT));
+    	placementButton.setOnAction(e -> statemachine.fire(Trigger.BAD_PLACEMENT));
     }
     
     private void past(MouseEvent e) {

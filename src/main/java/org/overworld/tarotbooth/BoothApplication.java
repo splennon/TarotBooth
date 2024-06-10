@@ -16,13 +16,13 @@ import lombok.Getter;
 public class BoothApplication extends Application {
 
 	public enum State {
-		IDLE, CURIOUS, ENGAGED, REQUESTING_PAST, TIMEOUT_PAST, REQUESTING_PRESENT, TIMEOUT_PRESENT, REQUESTING_FUTURE,
-		TIMEOUT_FUTURE, PLACEMENT_ERROR, PRE_READING, READING_PAST, READING_PRESENT, READING_FUTURE, ABANDONED, CLOSING,
-		PRINTING
+		IDLE, CURIOUS, ENGAGED, REQUESTING_PAST, REQUESTING_PRESENT, REQUESTING_FUTURE, FIX_PLACEMENT, READING, CLOSING,
+		RESET_BOOTH, FIX_PRINTER
 	}
 
 	public enum Trigger {
-		APPROACH_SENSOR, PRESENCE_SENSOR, PAST_READ, PRESENT_READ, FUTURE_READ, PRINTER_ERROR
+		APPROACH_SENSOR, PRESENCE_SENSOR, PAST_READ, PRESENT_READ, FUTURE_READ, PRINTER_ERROR, TIMEOUT, ADVANCE,
+		BAD_PLACEMENT
 	}
 
 	private Scene threeCardScene, debugScene, ezzieScene;
@@ -32,7 +32,7 @@ public class BoothApplication extends Application {
 
 	@Getter
 	private static StateMachine<State, Trigger> stateMachine;
-	
+
 	@Getter
 	private static GameModel gameModel = new GameModel();
 
@@ -41,10 +41,9 @@ public class BoothApplication extends Application {
 
 		threeCardScene = new Scene(new FXMLLoader(BoothApplication.class.getResource("threeCardSpread.fxml")).load(),
 				640, 480);
-		
-		debugScene = new Scene(new FXMLLoader(BoothApplication.class.getResource("debug.fxml")).load(),
-				640, 480);	
-		
+
+		debugScene = new Scene(new FXMLLoader(BoothApplication.class.getResource("debug.fxml")).load(), 640, 480);
+
 		debugStage.setScene(debugScene);
 		debugStage.show();
 
@@ -60,22 +59,237 @@ public class BoothApplication extends Application {
 	public BoothApplication() throws IOException {
 
 		var config = new StateMachineConfig<State, Trigger>();
-		
 
-		config.configure(State.IDLE).permit(Trigger.APPROACH_SENSOR, State.CURIOUS)
-				.onEntry(BoothApplication::idleNoise);
+		/* @formatter:off */
 		
-		config.configure(State.CURIOUS).onEntry(() -> System.out.println("We got a live one benny!"));
+		config.configure(State.IDLE)
+			.permit(Trigger.APPROACH_SENSOR, State.CURIOUS)
+			.permit(Trigger.PRESENCE_SENSOR, State.ENGAGED)
+			.onEntry(this::idle)
+			// ignore block
+			// .ignore(Trigger.APPROACH_SENSOR)
+			// .ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			.ignore(Trigger.TIMEOUT)
+			.ignore(Trigger.ADVANCE)
+			.ignore(Trigger.BAD_PLACEMENT);
+			// end ignore block
 
+		config.configure(State.CURIOUS)
+			.permit(Trigger.PRESENCE_SENSOR, State.ENGAGED)
+			.permit(Trigger.TIMEOUT, State.IDLE)
+			.onEntry(this::curious)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			// .ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			// .ignore(Trigger.TIMEOUT)
+			.ignore(Trigger.ADVANCE)
+			.ignore(Trigger.BAD_PLACEMENT);
+			// end ignore block
 		
-		// config.generateDotFileInto(System.out);
+		config.configure(State.ENGAGED)
+			.permit(Trigger.PAST_READ, State.REQUESTING_PRESENT)
+			.permit(Trigger.ADVANCE, State.REQUESTING_PAST)
+			.permit(Trigger.TIMEOUT, State.IDLE)
+			.permit(Trigger.BAD_PLACEMENT, State.RESET_BOOTH)
+			.onEntry(this::engaged)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			// .ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR);
+			// .ignore(Trigger.TIMEOUT)
+			// .ignore(Trigger.ADVANCE)
+			// .ignore(Trigger.BAD_PLACEMENT)
+			// end ignore block
+		
+		config.configure(State.REQUESTING_PAST)
+			.permit(Trigger.PAST_READ, State.REQUESTING_PRESENT)
+			.permit(Trigger.TIMEOUT, State.IDLE)
+			.permit(Trigger.BAD_PLACEMENT, State.FIX_PLACEMENT)
+			.onEntry(this::requestingPast)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			// .ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			// .ignore(Trigger.TIMEOUT)
+			.ignore(Trigger.ADVANCE);
+			// .ignore(Trigger.BAD_PLACEMENT)
+			// end ignore block
+		
+		config.configure(State.REQUESTING_PRESENT)
+			.permit(Trigger.PRESENT_READ, State.REQUESTING_FUTURE)
+			.permit(Trigger.TIMEOUT, State.IDLE)
+			.permit(Trigger.BAD_PLACEMENT, State.FIX_PLACEMENT)
+			.onEntry(this::requestingPresent)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			// .ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			// .ignore(Trigger.TIMEOUT)
+			.ignore(Trigger.ADVANCE);
+			// .ignore(Trigger.BAD_PLACEMENT)
+			// end ignore block
+		
+		config.configure(State.REQUESTING_FUTURE)
+			.permit(Trigger.FUTURE_READ, State.READING)
+			.permit(Trigger.TIMEOUT, State.IDLE)
+			.permit(Trigger.BAD_PLACEMENT, State.FIX_PLACEMENT)
+			.onEntry(this::requestingFuture)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			// .ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			// .ignore(Trigger.TIMEOUT)
+			.ignore(Trigger.ADVANCE);
+			// .ignore(Trigger.BAD_PLACEMENT)
+			// end ignore block
+		
+		config.configure(State.READING)
+			.permit(Trigger.TIMEOUT, State.IDLE)
+			.permit(Trigger.ADVANCE, State.CLOSING)
+			.onEntry(this::reading)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			// .ignore(Trigger.TIMEOUT)
+			// .ignore(Trigger.ADVANCE)
+			.ignore(Trigger.BAD_PLACEMENT);
+			// end ignore block
+		
+		config.configure(State.FIX_PLACEMENT)
+			.permit(Trigger.ADVANCE, State.REQUESTING_PAST)
+			.permit(Trigger.TIMEOUT, State.RESET_BOOTH)
+			.onEntry(this::fixPlacement)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			// .ignore(Trigger.TIMEOUT)
+			// .ignore(Trigger.ADVANCE)
+			.ignore(Trigger.BAD_PLACEMENT);
+			// end ignore block
+		
+		config.configure(State.RESET_BOOTH)
+			.permit(Trigger.ADVANCE, State.ENGAGED)
+			.onEntry(this::resetBooth)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			.ignore(Trigger.TIMEOUT)
+			// .ignore(Trigger.ADVANCE)
+			.ignore(Trigger.BAD_PLACEMENT);
+			// end ignore block
+		
+		config.configure(State.CLOSING)
+			.permit(Trigger.ADVANCE, State.IDLE)
+			.permit(Trigger.PRINTER_ERROR, State.FIX_PRINTER)
+			.onEntry(this::closing)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			// .ignore(Trigger.PRINTER_ERROR)
+			.ignore(Trigger.TIMEOUT)
+			// .ignore(Trigger.ADVANCE)
+			.ignore(Trigger.BAD_PLACEMENT);
+			// end ignore block
+		
+		config.configure(State.FIX_PRINTER)
+			.permit(Trigger.ADVANCE, State.CLOSING)
+			.onEntry(this::fixPrinter)
+			// ignore block
+			.ignore(Trigger.APPROACH_SENSOR)
+			.ignore(Trigger.PRESENCE_SENSOR)
+			.ignore(Trigger.PAST_READ)
+			.ignore(Trigger.PRESENT_READ)
+			.ignore(Trigger.FUTURE_READ)
+			.ignore(Trigger.PRINTER_ERROR)
+			.ignore(Trigger.TIMEOUT)
+			// .ignore(Trigger.ADVANCE)
+			.ignore(Trigger.BAD_PLACEMENT);
+			// end ignore block
+		
+		/* @formatter:on */
 
-		
+		// config.generateDotFileInto(System.out, true);
+
 		stateMachine = new StateMachine<>(State.IDLE, config);
 		stateMachine.fireInitialTransition();
 	}
 
-	private static void idleNoise() {
-		System.out.println("IdleNoise");
+	private void idle() {
+		System.out.println("idle");
+	}
+
+	private void curious() {
+		System.out.println("curious");
+	}
+
+	private void engaged() {
+		System.out.println("engaged");
+	}
+
+	private void requestingPast() {
+		System.out.println("requesting past");
+	}
+
+	private void requestingPresent() {
+		System.out.println("requesting present");
+	}
+
+	private void requestingFuture() {
+		System.out.println("requesting future");
+	}
+
+	private void reading() {
+		System.out.println("reading");
+	}
+
+	private void fixPlacement() {
+		System.out.println("fix placement");
+	}
+
+	private void resetBooth() {
+		System.out.println("reset booth");
+	}
+
+	private void closing() {
+		System.out.println("closing");
+	}
+
+	private void fixPrinter() {
+		System.out.println("fix printer");
 	}
 }
