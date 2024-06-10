@@ -8,10 +8,13 @@ package org.overworld.tarotbooth;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.overworld.tarotbooth.BoothApplication.State;
-import org.overworld.tarotbooth.BoothApplication.Trigger;
+import org.overworld.tarotbooth.StateMachineConfiguration.State;
+import org.overworld.tarotbooth.StateMachineConfiguration.Trigger;
+import org.overworld.tarotbooth.model.Deck;
 import org.overworld.tarotbooth.model.Deck.Card;
 import org.overworld.tarotbooth.model.GameModel;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import com.github.oxo42.stateless4j.StateMachine;
 
@@ -22,11 +25,17 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.input.MouseEvent;
 
+@Component
 public class DebugController implements Initializable {
     
-	private StateMachine<State, Trigger> statemachine = BoothApplication.getStateMachine();
-	private GameModel model = BoothApplication.getGameModel();
+	@Autowired
+	private StateMachine<State, Trigger> stateMachine;
+
+	@Autowired
+	private GameModel gameModel;
 	
+	@Autowired
+	private Deck deck;
 
     @FXML
     private Button pastButton;
@@ -63,40 +72,41 @@ public class DebugController implements Initializable {
 
     @FXML
     private ToggleButton approachToggle;
-
 	
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-
+    	
+    	stateMachine = BoothApplication.springContext.getBean(StateMachine.class);
+    	
     	pastButton.setOnMouseClicked(this::past);
     	presentButton.setOnMouseClicked(this::present);
     	futureButton.setOnMouseClicked(this::future);
-    	approachToggle.setOnAction(e -> statemachine.fire(Trigger.APPROACH_SENSOR));
-    	presenceToggle.setOnAction(e -> statemachine.fire(Trigger.PRESENCE_SENSOR));
-    	advanceButton.setOnAction(e -> statemachine.fire(Trigger.ADVANCE));
-    	printerButton.setOnAction(e -> statemachine.fire(Trigger.PRINTER_ERROR));
-    	timeoutButton.setOnAction(e -> statemachine.fire(Trigger.TIMEOUT));
-    	placementButton.setOnAction(e -> statemachine.fire(Trigger.BAD_PLACEMENT));
+    	approachToggle.setOnAction(e -> stateMachine.fire(Trigger.APPROACH_SENSOR));
+    	presenceToggle.setOnAction(e -> stateMachine.fire(Trigger.PRESENCE_SENSOR));
+    	advanceButton.setOnAction(e -> stateMachine.fire(Trigger.ADVANCE));
+    	printerButton.setOnAction(e -> stateMachine.fire(Trigger.PRINTER_ERROR));
+    	timeoutButton.setOnAction(e -> stateMachine.fire(Trigger.TIMEOUT));
+    	placementButton.setOnAction(e -> stateMachine.fire(Trigger.BAD_PLACEMENT));
     }
     
     private void past(MouseEvent e) {
     	
-    	Card c = GameModel.getDeck().get(pastText.getText());
-    	model.setPast(c);
-    	statemachine.fire(Trigger.PAST_READ);
+    	Card c = deck.get(pastText.getText());
+    	gameModel.setPast(c);
+    	stateMachine.fire(Trigger.PAST_READ);
     };
     
     private void present(MouseEvent e) {
 
-    	Card c = GameModel.getDeck().get(presentText.getText());
-    	model.setPresent(c);
-    	statemachine.fire(Trigger.PRESENT_READ);
+    	Card c = deck.get(presentText.getText());
+    	gameModel.setPresent(c);
+    	stateMachine.fire(Trigger.PRESENT_READ);
     };
     
     private void future(MouseEvent e) {
 
-    	Card c = GameModel.getDeck().get(futureText.getText());
-    	model.setFuture(c);
-    	statemachine.fire(Trigger.FUTURE_READ);
-    };
+    	Card c = deck.get(futureText.getText());
+    	gameModel.setFuture(c);
+    	stateMachine.fire(Trigger.FUTURE_READ);
+    }
 }

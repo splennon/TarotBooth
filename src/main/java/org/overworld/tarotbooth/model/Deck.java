@@ -2,6 +2,9 @@ package org.overworld.tarotbooth.model;
 
 import java.util.HashMap;
 
+import org.springframework.stereotype.Component;
+
+@Component
 public class Deck extends HashMap<String, Deck.Card> {
 
 	private static final long serialVersionUID = -8299688802942289003L;

@@ -2,12 +2,12 @@ package org.overworld.tarotbooth.model;
 
 import java.util.Optional;
 
+import org.springframework.stereotype.Component;
+
 import lombok.Getter;
 
+@Component
 public class GameModel {
-
-	@Getter
-	private static final Deck deck = new Deck();
 	
 	@Getter
 	private Optional<Deck.Card> past = Optional.empty();

@@ -8,8 +8,11 @@ package org.overworld.tarotbooth;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.springframework.stereotype.Component;
+
 import javafx.fxml.Initializable;
 
+@Component
 public class EzzieController implements Initializable {
     
     /**
