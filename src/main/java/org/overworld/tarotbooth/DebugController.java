@@ -76,7 +76,7 @@ public class DebugController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
     	
-    	stateMachine = BoothApplication.springContext.getBean(StateMachine.class);
+    	//stateMachine = BoothApplication.springContext.getBean(StateMachine.class);
     	
     	pastButton.setOnMouseClicked(this::past);
     	presentButton.setOnMouseClicked(this::present);
