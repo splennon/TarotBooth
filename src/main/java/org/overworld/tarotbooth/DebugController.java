@@ -8,15 +8,12 @@ package org.overworld.tarotbooth;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.overworld.tarotbooth.StateMachineConfiguration.State;
-import org.overworld.tarotbooth.StateMachineConfiguration.Trigger;
+import org.overworld.tarotbooth.EzzieMachine.Trigger;
 import org.overworld.tarotbooth.model.Deck;
 import org.overworld.tarotbooth.model.Deck.Card;
 import org.overworld.tarotbooth.model.GameModel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-
-import com.github.oxo42.stateless4j.StateMachine;
 
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -29,7 +26,7 @@ import javafx.scene.input.MouseEvent;
 public class DebugController implements Initializable {
     
 	@Autowired
-	private StateMachine<State, Trigger> stateMachine;
+	private EzzieMachine stateMachine;
 
 	@Autowired
 	private GameModel gameModel;

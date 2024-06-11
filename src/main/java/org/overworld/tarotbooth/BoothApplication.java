@@ -8,41 +8,22 @@ import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import javafx.application.Application;
-import javafx.fxml.FXMLLoader;
-import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 @SpringBootApplication
 @EnableScheduling
 public class BoothApplication extends Application {
 
-	public static ConfigurableApplicationContext springContext;
-
-	private Scene threeCardScene, debugScene, ezzieScene;
+	private static ConfigurableApplicationContext springContext;
 
 	@Override
-	public void start(Stage prinaryStage) throws IOException {
+	public void start(Stage primaryStage) throws IOException {
 
-		/* TODO: This should all be in the statemachine */
-
-		Stage mainStage = new Stage();
-		Stage debugStage = new Stage();
-
-		threeCardScene = new Scene(FXMLLoader.load(BoothApplication.class.getResource("threeCardSpread.fxml"), null,
-				null, springContext::getBean), 640, 480);
-
-		debugScene = new Scene(
-				FXMLLoader.load(BoothApplication.class.getResource("debug.fxml"), null, null, springContext::getBean),
-				640, 480);
-
-		debugStage.setScene(debugScene);
-		debugStage.show();
-
-		ezzieScene = new Scene(
-				FXMLLoader.load(BoothApplication.class.getResource("debug.fxml"), null, null, springContext::getBean),
-				640, 480);
-		mainStage.setScene(ezzieScene);
-		mainStage.show();
+		/*
+		 * JavaFX Initialisation has been moved to this bean, but it needs to happen on
+		 * the JavaFX application thread
+		 */
+		springContext.getBean(StateActions.class).initialize();
 	}
 
 	public static void main(String[] args) {

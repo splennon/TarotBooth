@@ -1,22 +1,45 @@
-.backgrounded{
+.backgrounded {
     -fx-background-image: url("images/bg2.png");
-    -fx-opacity: 0.2;
     -fx-background-color: antiquewhite;
     -fx-background-repeat: repeat;   
     -fx-background-size: 120 120;
 }
-.backgrounded2{
+.blackBackground {
+    -fx-background-color: black;
+    -fx-background-repeat: repeat;   
+    -fx-background-size: 120 120;
+}
+.backgrounded2 {
     -fx-background-image: url("images/bg1.png");
-    -fx-opacity: 0.2;
     -fx-background-color: antiquewhite;
     -fx-background-repeat: repeat;   
     -fx-background-size: 240 240;
 }
-.ezzieBig{
+.ezzieBig {
     -fx-background-image: url("images/ezzie.jpeg");
     -fx-background-repeat: no-repeat;
 }
-.bennyBig{
+.bennyBig {
     -fx-background-image: url("images/benny.jpeg");
+    -fx-background-repeat: no-repeat;
+}
+.quinnBig {
+    -fx-background-image: url("images/benny.jpeg");
+    -fx-background-repeat: no-repeat;
+}
+.estraladaAd {
+    -fx-background-image: url("images/benny.jpeg");
+    -fx-background-repeat: no-repeat;
+}
+.reading {
+    -fx-background-image: url("images/ezzie.jpeg");
+    -fx-background-repeat: no-repeat;
+}
+.drawing {
+    -fx-background-image: url("images/ezzie.jpeg");
+    -fx-background-repeat: no-repeat;
+}
+.beaches {
+    -fx-background-image: url("images/ezzie.jpeg");
     -fx-background-repeat: no-repeat;
 }
