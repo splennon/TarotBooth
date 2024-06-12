@@ -13,7 +13,8 @@
 
 <StackPane minHeight="480.0" minWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.BoothController">
     <children>
-      <AnchorPane prefHeight="200.0" prefWidth="200.0" styleClass="blackBackground" stylesheets="@global.css" />
+      <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" styleClass="blackBackground" stylesheets="@global.css" />
+      <AnchorPane fx:id="idle" opacity="0.0" prefHeight="200.0" prefWidth="200.0" styleClass="blackBackground" stylesheets="@global.css" />
       <AnchorPane fx:id="ezzie" opacity="0.0" styleClass="ezzieBig" stylesheets="@global.css">
          <children>
             <Label prefHeight="480.0" prefWidth="640.0" text="Ezzie Big">

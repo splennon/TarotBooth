@@ -21,6 +21,9 @@ public class StateActions {
 	@Autowired
 	private BoothController controller;
 	
+	@Autowired
+	private TimeoutService timeout;
+	
 	private EzzieMachine stateMachine;
 
 	@Autowired
@@ -30,8 +33,6 @@ public class StateActions {
 	
 	private Stage mainStage, debugStage;
 	private Scene debugScene, mainScene;
-	
-	private Parent boothRoot;
 
 	public void initialize() throws IOException {
 
@@ -41,8 +42,6 @@ public class StateActions {
 		debugScene = new Scene(
 				FXMLLoader.load(BoothApplication.class.getResource("debug.fxml"), null, null, springContext::getBean),
 				640, 480);
-
-		boothRoot =	FXMLLoader.load(BoothApplication.class.getResource("booth.fxml"), null, null, springContext::getBean);
 
 		mainScene = new Scene(
 				FXMLLoader.load(BoothApplication.class.getResource("booth.fxml"), null, null, springContext::getBean),
@@ -59,16 +58,18 @@ public class StateActions {
 
 	public void idle() {
 		System.out.println("idle");
+		controller.blackMode();
 	}
 
 	public void curious() {
 		System.out.println("curious");
-		controller.fadeinezzie(); //TODO
+		timeout.poke();
+		controller.ezzieMode();
 	}
 
 	public void engaged() {
 		System.out.println("engaged");
-		controller.fadeinbenny(); //TODO
+		controller.bennyMode();
 	}
 
 	public void requestingPast() {

@@ -27,6 +27,9 @@ public class DebugController implements Initializable {
     
 	@Autowired
 	private EzzieMachine stateMachine;
+	
+	@Autowired
+	TimeoutService timeout;
 
 	@Autowired
 	private GameModel gameModel;
@@ -79,7 +82,7 @@ public class DebugController implements Initializable {
     	presentButton.setOnMouseClicked(this::present);
     	futureButton.setOnMouseClicked(this::future);
     	approachToggle.setOnAction(e -> stateMachine.fire(Trigger.APPROACH_SENSOR));
-    	presenceToggle.setOnAction(e -> stateMachine.fire(Trigger.PRESENCE_SENSOR));
+    	presenceToggle.setOnAction(e -> {timeout.poke(); stateMachine.fire(Trigger.PRESENCE_SENSOR);});
     	advanceButton.setOnAction(e -> stateMachine.fire(Trigger.ADVANCE));
     	printerButton.setOnAction(e -> stateMachine.fire(Trigger.PRINTER_ERROR));
     	timeoutButton.setOnAction(e -> stateMachine.fire(Trigger.TIMEOUT));
@@ -88,13 +91,15 @@ public class DebugController implements Initializable {
     
     private void past(MouseEvent e) {
     	
+    	timeout.poke();
     	Card c = deck.get(pastText.getText());
     	gameModel.setPast(c);
     	stateMachine.fire(Trigger.PAST_READ);
     };
     
     private void present(MouseEvent e) {
-
+    	
+    	timeout.poke();
     	Card c = deck.get(presentText.getText());
     	gameModel.setPresent(c);
     	stateMachine.fire(Trigger.PRESENT_READ);
@@ -102,6 +107,7 @@ public class DebugController implements Initializable {
     
     private void future(MouseEvent e) {
 
+    	timeout.poke();
     	Card c = deck.get(futureText.getText());
     	gameModel.setFuture(c);
     	stateMachine.fire(Trigger.FUTURE_READ);

@@ -14,7 +14,7 @@ import javafx.stage.Stage;
 @EnableScheduling
 public class BoothApplication extends Application {
 
-	private static ConfigurableApplicationContext springContext;
+	private ConfigurableApplicationContext springContext;
 
 	@Override
 	public void start(Stage primaryStage) throws IOException {
