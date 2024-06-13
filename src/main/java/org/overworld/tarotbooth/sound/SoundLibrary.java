@@ -80,9 +80,9 @@ public class SoundLibrary extends HashMap<String, MediaPlayer> {
 		this.put("E01", new MediaPlayer(new Media(SoundLibrary.class.getResource("E01.mp3").toString())));
 		this.put("E02", new MediaPlayer(new Media(SoundLibrary.class.getResource("E02.mp3").toString())));
 		this.put("E03", new MediaPlayer(new Media(SoundLibrary.class.getResource("E03.mp3").toString())));
-		this.put("E04", new MediaPlayer(new Media(SoundLibrary.class.getResource("E04.mp3").toString())));
-		this.put("E05", new MediaPlayer(new Media(SoundLibrary.class.getResource("E05.mp3").toString())));
-		this.put("E06", new MediaPlayer(new Media(SoundLibrary.class.getResource("E06.mp3").toString())));
+		this.put("X01", new MediaPlayer(new Media(SoundLibrary.class.getResource("X01.mp3").toString())));
+		this.put("X02", new MediaPlayer(new Media(SoundLibrary.class.getResource("X02.mp3").toString())));
+		this.put("X03", new MediaPlayer(new Media(SoundLibrary.class.getResource("X03.mp3").toString())));
 		this.put("I01", new MediaPlayer(new Media(SoundLibrary.class.getResource("I01.mp3").toString())));
 		this.put("I02", new MediaPlayer(new Media(SoundLibrary.class.getResource("I02.mp3").toString())));
 		this.put("I03", new MediaPlayer(new Media(SoundLibrary.class.getResource("I03.mp3").toString())));
@@ -237,6 +237,7 @@ public class SoundLibrary extends HashMap<String, MediaPlayer> {
 		this.put("P14R", new MediaPlayer(new Media(SoundLibrary.class.getResource("P14R.mp3").toString())));
 		this.put("PO8", new MediaPlayer(new Media(SoundLibrary.class.getResource("PO8.mp3").toString())));
 		this.put("R01", new MediaPlayer(new Media(SoundLibrary.class.getResource("R01.mp3").toString())));
+		this.put("R02", new MediaPlayer(new Media(SoundLibrary.class.getResource("R02.mp3").toString())));
 		this.put("R03", new MediaPlayer(new Media(SoundLibrary.class.getResource("R03.mp3").toString())));
 		this.put("R04", new MediaPlayer(new Media(SoundLibrary.class.getResource("R04.mp3").toString())));
 		this.put("R05", new MediaPlayer(new Media(SoundLibrary.class.getResource("R05.mp3").toString())));
@@ -251,7 +252,6 @@ public class SoundLibrary extends HashMap<String, MediaPlayer> {
 		this.put("R14", new MediaPlayer(new Media(SoundLibrary.class.getResource("R14.mp3").toString())));
 		this.put("R15", new MediaPlayer(new Media(SoundLibrary.class.getResource("R15.mp3").toString())));
 		this.put("R16", new MediaPlayer(new Media(SoundLibrary.class.getResource("R16.mp3").toString())));
-		this.put("R17", new MediaPlayer(new Media(SoundLibrary.class.getResource("R17.mp3").toString())));
 		this.put("S01", new MediaPlayer(new Media(SoundLibrary.class.getResource("S01.mp3").toString())));
 		this.put("S01F", new MediaPlayer(new Media(SoundLibrary.class.getResource("S01F.mp3").toString())));
 		this.put("S01P", new MediaPlayer(new Media(SoundLibrary.class.getResource("S01P.mp3").toString())));
@@ -369,7 +369,10 @@ public class SoundLibrary extends HashMap<String, MediaPlayer> {
 	}
 
 	public void stopAll() {
-		this.values().stream().forEach(MediaPlayer::stop);
+		this.values().stream().forEach(m -> {
+			m.stop();
+			m.setOnEndOfMedia(null);
+		});
 	}
 	
 	public MediaPlayer get(Card card, Position position) {

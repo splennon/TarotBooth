@@ -41,10 +41,14 @@ public class SoundCarousel extends ArrayList<MediaPlayer>{
 	
 	public void playOut() {
 		
-		sounds.stopAll();
+		if (this.isEmpty())
+			return;
 		
 		if (nextIndex >= this.size())
 			nextIndex = 0;
-		this.get(nextIndex++).play();
+		
+		MediaPlayer sound = this.get(nextIndex++);
+		sound.setOnEndOfMedia(sound::stop);
+		sound.play();
 	}	
 }

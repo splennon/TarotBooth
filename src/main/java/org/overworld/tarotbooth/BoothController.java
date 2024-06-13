@@ -60,23 +60,20 @@ public class BoothController implements Initializable {
     public void beachesMode() {}
     public void readingMode() {}
     public void drawingMode() {}
-    public void quinnMode() {}
+    
+    public void quinnMode() {
+    	fadeTo(quinn);
+    }
     
     public void blackMode() {
- 	
     	fadeTo(idle);
     }
 
 	public void ezzieMode() {
-		
-
 		fadeTo(ezzie);
-		
-
 	}
 
 	public void bennyMode() {
-
 		fadeTo(benny);
 	}
 	

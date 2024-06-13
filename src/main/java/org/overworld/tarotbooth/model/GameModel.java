@@ -29,4 +29,12 @@ public class GameModel {
 	public void setFuture(Deck.Card future) {
 		this.future = Optional.ofNullable(future);
 	}
+	
+	public Optional<Deck.Card> getCardInPosition(Position position) {
+		return switch (position) {
+			case PAST -> getPast();
+			case PRESENT -> getPresent();
+			case FUTURE -> getFuture();
+		};
+	}
 }
