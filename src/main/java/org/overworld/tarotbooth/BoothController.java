@@ -8,30 +8,18 @@ package org.overworld.tarotbooth;
 import java.net.URL;
 import java.util.ResourceBundle;
 
-import org.overworld.tarotbooth.EzzieMachine.Trigger;
-import org.overworld.tarotbooth.sound.SoundLibrary;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
-import javafx.scene.Parent;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
-import javafx.scene.media.Media;
-import javafx.scene.media.MediaPlayer;
 import javafx.util.Duration;
 
 @Component
 public class BoothController implements Initializable {
-    
-	@Autowired
-	SoundLibrary sounds;
-	
-	@Autowired
-	EzzieMachine machine;
-	
+
     @FXML
     private AnchorPane beaches;
    
@@ -75,27 +63,20 @@ public class BoothController implements Initializable {
     public void quinnMode() {}
     
     public void blackMode() {
-    	
-		sounds.stopAll();    	
+ 	
     	fadeTo(idle);
     }
 
 	public void ezzieMode() {
 		
-		sounds.stopAll();
+
 		fadeTo(ezzie);
 		
-		MediaPlayer mp = sounds.get("R01");
-		mp.setOnEndOfMedia(() -> {
-			System.out.println("firing presence sensor");
-			machine.fire(Trigger.PRESENCE_SENSOR);
-		});		
-		mp.play();
+
 	}
 
 	public void bennyMode() {
 
-		sounds.stopAll();
 		fadeTo(benny);
 	}
 	
@@ -120,10 +101,12 @@ public class BoothController implements Initializable {
     		fadeOut.play();
     	}
     	
-    	for (Pane p : allPanes) {
-    		
-    		if (p != current && p != pane)
-    			p.setOpacity(0);
+    	if (allPanes != null ) {
+	    	for (Pane p : allPanes) {
+	    		
+	    		if (p != current && p != pane)
+	    			p.setOpacity(0);
+	    	}
     	}
     }
 }
