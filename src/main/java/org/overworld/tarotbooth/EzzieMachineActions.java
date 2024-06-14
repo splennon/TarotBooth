@@ -19,46 +19,51 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
+import jakarta.annotation.PostConstruct;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
+import lombok.Getter;
 import lombok.val;
 
 @Component
 public class EzzieMachineActions {
-	
+
 	@Autowired
 	private BoothController controller;
-	
+
 	@Autowired
 	private SoundLibrary sounds;
-	
+
 	@Autowired
 	private SoundCarousel carousel;
-	
+
 	@Autowired
 	private GameModel gameModel;
-	
+
 	private Random random = new Random();
 
 	private EzzieMachine stateMachine;
+
+	@Getter
+	private FXMLLoader mainLoader = new FXMLLoader();
 
 	@Autowired
 	public void setStateMachine(@Lazy EzzieMachine stateMachine) {
 		this.stateMachine = stateMachine;
 	}
-	
+
 	@Autowired
 	private ApplicationContext springContext;
-	
+
 	private Stage mainStage, debugStage;
 	private Scene debugScene, mainScene;
 
 	private Timer timer = new Timer("Autoadvance");
-	
+
 	private MediaChain sceneChain;
-	
+
 	public void initialize() throws IOException {
 
 		mainStage = new Stage();
@@ -68,26 +73,63 @@ public class EzzieMachineActions {
 				FXMLLoader.load(BoothApplication.class.getResource("debug.fxml"), null, null, springContext::getBean),
 				640, 480);
 
-		mainScene = new Scene(
-				FXMLLoader.load(BoothApplication.class.getResource("booth.fxml"), null, null, springContext::getBean),
-				640, 480);
-		
+		mainLoader.setControllerFactory(springContext::getBean);
+		mainLoader.setLocation(BoothApplication.class.getResource("booth.fxml"));
+		mainScene = new Scene(mainLoader.load(), 640, 480);
+
 		debugStage.setScene(debugScene);
 		debugStage.show();
 
 		mainStage.setScene(mainScene);
 		mainStage.show();
 	}
-	
+
 	private MediaPlayer music;
-	
+
+	private MediaPlayer carnivalMusic;
+
+	public void advance() {
+
+		/* Wrapping in a timer to trick spring into ignoring the circularity */
+
+		timer.schedule(new TimerTask() {
+			public void run() {
+				stateMachine.fire(ADVANCE);
+			}
+		}, 100);
+	}
+
+	public void advanceAfterFxmlLoadDelay() {
+
+		/*
+		 * This is a horrible hack to delay the state machine until FXMLLoader is
+		 * finished initialising the BoothController, but there is no event to signal
+		 * this so a delay is used instead, you may need to increase it for smaller
+		 * hardware
+		 */
+
+		timer.schedule(new TimerTask() {
+			public void run() {
+				stateMachine.fire(ADVANCE);
+			}
+		}, 2500);
+	}
+
+	public void running() {
+		carnivalMusic = sounds.getPlayerFor("U01");
+		carnivalMusic.setCycleCount(Integer.MAX_VALUE);
+		carnivalMusic.play();
+	}
+
+	public void runningExit() {
+		carnivalMusic.stop();
+	}
+
+	public void attracting() {
+		controller.curtainskMode();
+	}
+
 	public void idle() {
-		
-		music = sounds.getPlayerFor("U01");
-		music.setCycleCount(Integer.MAX_VALUE);
-		music.play();
-		
-		System.out.println("idle");
 		carousel.setFast(false);
 		carousel.add(sounds.getPlayerFor("A01"));
 		carousel.add(sounds.getPlayerFor("A02"));
@@ -96,34 +138,32 @@ public class EzzieMachineActions {
 		carousel.add(sounds.getPlayerFor("A05"));
 		carousel.add(sounds.getPlayerFor("A06"));
 		carousel.setNextIndex(random.nextInt(4));
-		controller.blackMode();
 	}
-	
+
 	public void idleExit() {
 		carousel.clear();
 	}
 
 	public void curious() {
-		System.out.println("curious");
 		carousel.setFast(true);
 		carousel.setNextIndex(0); /* MmeZ's curious announcement will be the same every time */
 		carousel.add(sounds.getPlayerFor("E01"));
 		carousel.add(sounds.getPlayerFor("E02"));
 		carousel.add(sounds.getPlayerFor("E03"));
-		controller.blackMode();
-		
+
 		timer.schedule(new TimerTask() {
-	        public void run() {
-	        	stateMachine.fire(ADVANCE);
-	        }
-	    }, 30000);
+			public void run() {
+				stateMachine.fire(ADVANCE);
+			}
+		}, 30000);
 	}
 
 	public void curiousExit() {
 		carousel.clear();
-		music.stop();
 	}
-	
+
+	/* Old actions */
+
 	public void engaged() {
 		System.out.println("engaged");
 		controller.ezzieMode();
@@ -131,7 +171,7 @@ public class EzzieMachineActions {
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
-	
+
 	public void quinn() {
 		System.out.println("quinn");
 		controller.quinnMode();
@@ -147,7 +187,7 @@ public class EzzieMachineActions {
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
-	
+
 	public void intro() {
 		System.out.println("intro");
 		controller.ezzieMode();
@@ -155,7 +195,7 @@ public class EzzieMachineActions {
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
-	
+
 	public void requestingPast() {
 		System.out.println("requesting past");
 		controller.ezzieMode();
@@ -175,12 +215,12 @@ public class EzzieMachineActions {
 		if (card.isPresent()) {
 			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
 		}
-		sceneChain.getHead().play();	
+		sceneChain.getHead().play();
 	}
 
 	public void requestingFuture() {
 		System.out.println("requesting future");
-		controller.ezzieMode();	
+		controller.ezzieMode();
 		val sceneSound = sounds.getPlayerFor("R16");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		sceneChain = new MediaChain(sceneSound);
@@ -189,35 +229,37 @@ public class EzzieMachineActions {
 		if (card.isPresent()) {
 			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
 		}
-		sceneChain.getHead().play();		
+		sceneChain.getHead().play();
 	}
 
 	public void readPast() {
 
 	}
-	
-	public void readPresent() {}
-	
-	public void readFuture() {}
-	
+
+	public void readPresent() {
+	}
+
+	public void readFuture() {
+	}
+
 	public void reading() {
 		System.out.println("reading");
-		
+
 		music = sounds.getPlayerFor("U02");
 		music.setCycleCount(1);
 		music.play();
-		
+
 		val sceneSound = sounds.getPlayerFor("R08");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
-		
+
 		sceneChain = new MediaChain(sceneSound);
 		sceneChain.wrap(sounds.getPlayerFor("R07"));
 		sceneChain.wrap(sounds.getPlayerFor("I0" + random.nextInt(1, 8)));
 		Optional<Card> card = gameModel.getCardInPosition(Position.FUTURE);
 		if (card.isPresent()) {
 			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
-		}		
-		sceneChain.getHead().play();	
+		}
+		sceneChain.getHead().play();
 	}
 
 	public void fixPlacement() {
@@ -233,23 +275,10 @@ public class EzzieMachineActions {
 		controller.ezzieMode();
 		val sceneSound = sounds.getPlayerFor("R13");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
-		
+
 	}
 
 	public void fixPrinter() {
 		System.out.println("fix printer");
-	}
-	
-	/* new methods */
-	
-	public void advance() {
-		
-		/* Wrapping in a timer to trick spring into ignoring the circularity */
-		
-		timer.schedule(new TimerTask() {
-	        public void run() {
-	        	stateMachine.fire(ADVANCE);
-	        }
-	    }, 100);
 	}
 }

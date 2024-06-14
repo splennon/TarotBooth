@@ -49,6 +49,8 @@ import static org.overworld.tarotbooth.EzzieMachine.Trigger.PRESENT_READ;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.PRINTER_ERROR;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.TIMEOUT;
 
+import java.util.TimerTask;
+
 import org.overworld.tarotbooth.EzzieMachine.State;
 import org.overworld.tarotbooth.EzzieMachine.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -57,11 +59,13 @@ import org.springframework.context.annotation.Configuration;
 
 import com.github.oxo42.stateless4j.StateMachineConfig;
 
+import jakarta.annotation.PostConstruct;
+
 @Configuration
 public class EzzieMachineConfiguration {
 
 	@Autowired
-	private EzzieMachineActions ezzieMachineActions;
+	private EzzieMachineActions actions;
 	
 	@Bean
 	public EzzieMachine stateMachine() {
@@ -92,28 +96,37 @@ public class EzzieMachineConfiguration {
 		
 		config.configure(RUNNING)
 			.substateOf(LOADED)
-			.onEntry(() -> System.out.println("Entering Superstate RUNNING"))
 			.permit(ADVANCE, ATTRACTING)
-			.onEntry(ezzieMachineActions::advance)
+			.onEntry(() -> System.out.println("Entering Superstate RUNNING"))
+			.onEntry(actions::running)
+			.onEntry(actions::advanceAfterFxmlLoadDelay)
+			.onExit(actions::runningExit)
 			;
 
 		/* Ezzie is attracting people into her empty booth */
 		
 		config.configure(ATTRACTING)
 			.substateOf(RUNNING)
-			.onEntry(() -> System.out.println("Entering Superstate ATTRACTING"))
 			.permit(ADVANCE, IDLE)
-			.onEntry(ezzieMachineActions::advance)
+			.onEntry(() -> System.out.println("Entering Superstate ATTRACTING"))
+			.onEntry(actions::attracting)
+			.onEntry(actions::advance)
 			;
 		config.configure(IDLE)
 			.substateOf(ATTRACTING)
+			.permit(APPROACH_SENSOR, CURIOUS)
+			.permit(PRESENCE_SENSOR, ENGAGED)
 			.onEntry(() -> System.out.println("Entering IDLE"))
-			.permit(APPROACH_SENSOR, ASIDE)
+			.onEntry(actions::idle)
+			.onExit(actions::idleExit)
 			;
 		config.configure(CURIOUS)
 			.substateOf(ATTRACTING)
-			.onEntry(() -> System.out.println("Entering CURIOUS"))
 			.permit(PRESENCE_SENSOR, ENGAGED)
+			.permit(ADVANCE, IDLE)
+			.onEntry(() -> System.out.println("Entering CURIOUS"))
+			.onEntry(actions::curious)
+			.onExit(actions::curiousExit)
 			;
 		
 		/* Ezzie has a customer! */

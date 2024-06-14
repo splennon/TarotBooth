@@ -24,7 +24,7 @@ public class BoothController implements Initializable {
     private AnchorPane beaches;
    
     @FXML
-    private AnchorPane idle;
+    private AnchorPane curtains;
 
     @FXML
     private AnchorPane benny;
@@ -53,7 +53,7 @@ public class BoothController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-    	allPanes = new Pane[] {beaches, idle, benny, drawing, ezzie, reading, estralada, quinn};
+    	allPanes = new Pane[] {beaches, curtains, benny, drawing, ezzie, reading, estralada, quinn};
     }
     
     public void estraladaMode() {}
@@ -65,8 +65,8 @@ public class BoothController implements Initializable {
     	fadeTo(quinn);
     }
     
-    public void blackMode() {
-    	fadeTo(idle);
+    public void curtainskMode() {
+    	fadeTo(curtains);
     }
 
 	public void ezzieMode() {
@@ -82,7 +82,6 @@ public class BoothController implements Initializable {
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(900), pane);
 		fadeIn.setFromValue(0);
 		fadeIn.setToValue(1);
-
 		
     	if (current == null) {
     		fadeIn.play();
