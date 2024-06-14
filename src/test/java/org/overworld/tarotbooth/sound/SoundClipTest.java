@@ -14,7 +14,7 @@ class SoundClipTest {
 	@Test
 	void testSimple() throws InterruptedException, UnsupportedAudioFileException, IOException, LineUnavailableException {
 		SoundLibrary sc = new SoundLibrary();
-		sc.get("U01").play();
+		sc.getPlayerFor("U01").play();
 		Thread.sleep(5000);
 
 	}
@@ -22,23 +22,16 @@ class SoundClipTest {
 	@Test
 	void testCard() throws InterruptedException, UnsupportedAudioFileException, IOException, LineUnavailableException {
 		SoundLibrary sc = new SoundLibrary();
-		sc.get((new Deck()).get("S03"), Position.FUTURE).play();
+		sc.getPlayerFor((new Deck()).get("S03"), Position.FUTURE).play();
 		Thread.sleep(5000);
-		sc.get("S03").stop();
+		sc.getPlayerFor("S03").stop();
 	}
 	
 	@Test
 	void testCardbById() throws InterruptedException, UnsupportedAudioFileException, IOException, LineUnavailableException {
 		SoundLibrary sc = new SoundLibrary();
-		sc.get("S04", Position.PAST).play();
+		sc.getPlayerFor("S04", Position.PAST).play();
 		Thread.sleep(5000);
-		sc.get("S04").stop();
-	}
-	
-	@Test
-	void testStopAll() throws InterruptedException, UnsupportedAudioFileException, IOException, LineUnavailableException {
-		SoundLibrary sc = new SoundLibrary();
-		sc.stopAll();
-	}
-	
+		sc.getPlayerFor("S04").stop();
+	}	
 }

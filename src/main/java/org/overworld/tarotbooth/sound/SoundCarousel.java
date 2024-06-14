@@ -1,8 +1,7 @@
-package org.overworld.tarotbooth;
+package org.overworld.tarotbooth.sound;
 
 import java.util.ArrayList;
 
-import org.overworld.tarotbooth.sound.SoundLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
@@ -13,11 +12,7 @@ import lombok.Setter;
 
 @Component
 public class SoundCarousel extends ArrayList<MediaPlayer>{
-	
-	
-	@Autowired
-	private SoundLibrary sounds;
-	
+
 	@Getter
 	@Setter
 	private boolean fast;

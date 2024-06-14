@@ -6,12 +6,16 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import static org.overworld.tarotbooth.EzzieMachine.State.*;
+import static org.overworld.tarotbooth.EzzieMachine.Trigger.*;
+
 import org.overworld.tarotbooth.EzzieMachine.State;
 import org.overworld.tarotbooth.EzzieMachine.Trigger;
 import org.overworld.tarotbooth.model.GameModel;
 import org.overworld.tarotbooth.model.Position;
 import org.overworld.tarotbooth.model.Deck.Card;
 import org.overworld.tarotbooth.sound.MediaChain;
+import org.overworld.tarotbooth.sound.SoundCarousel;
 import org.overworld.tarotbooth.sound.SoundLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
@@ -20,11 +24,11 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Lazy;
 
 import com.github.oxo42.stateless4j.StateMachineConfig;
-
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
+import lombok.val;
 
 @Configuration
 public class EzzieMachineConfiguration {
@@ -44,7 +48,6 @@ public class EzzieMachineConfiguration {
 	private Random random = new Random();
 	
 	private EzzieMachine stateMachine;
-	
 	@Autowired
 	public void setStateMachine(@Lazy EzzieMachine stateMachine) {
 		this.stateMachine = stateMachine;
@@ -57,6 +60,8 @@ public class EzzieMachineConfiguration {
 	private Scene debugScene, mainScene;
 
 	private Timer timer = new Timer("Autoadvance");
+	
+	private MediaChain sceneChain;
 	
 	public void initialize() throws IOException {
 
@@ -85,179 +90,333 @@ public class EzzieMachineConfiguration {
 
 		/* @formatter:off */
 		
-		config.configure(State.IDLE)
-			.permit(Trigger.APPROACH_SENSOR, State.CURIOUS)
-			.permit(Trigger.PRESENCE_SENSOR, State.ENGAGED)
+		/* Unused super state for syntactic simplicity, holds all ignores */
+		
+		config.configure(LOADED)
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PAST_READ)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(TIMEOUT)
+			.ignore(ADVANCE)
+			.ignore(BAD_PLACEMENT_PAST)
+			.ignore(BAD_PLACEMENT_PREESNT)
+			.ignore(BAD_PLACEMENT_FUTURE)
+			.ignore(BAD_PLACEMENT)
+			.ignore(BAD_PLACEMENT_JOCKER)
+			;
+
+		/* Start the music, Ezzie is in session! */
+		
+		config.configure(RUNNING)
+			.substateOf(LOADED)
+			.onEntry(() -> System.out.println("Entering Superstate RUNNING"))
+			.permit(ADVANCE, ATTRACTING)
+			.onEntry(this::advance)
+			;
+
+		/* Ezzie is attracting people into her empty booth */
+		
+		config.configure(ATTRACTING)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate ATTRACTING"))
+			.permit(ADVANCE, IDLE)
+			.onEntry(this::advance)
+			;
+		config.configure(IDLE)
+			.substateOf(ATTRACTING)
+			.onEntry(() -> System.out.println("Entering IDLE"))
+			.permit(APPROACH_SENSOR, ASIDE)
+			;
+		config.configure(CURIOUS)
+			.substateOf(ATTRACTING)
+			.onEntry(() -> System.out.println("Entering CURIOUS"))
+			.permit(PRESENCE_SENSOR, ENGAGED)
+			;
+		
+		/* Ezzie has a customer! */
+		
+		config.configure(ENGAGED)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate ENGAGED"))
+			;
+		config.configure(HELLO)
+			.substateOf(ENGAGED)
+			.onEntry(() -> System.out.println("Entering HELLO"))
+			;
+		config.configure(QUINN)
+			.substateOf(ENGAGED)
+			.onEntry(() -> System.out.println("Entering QUINN"))
+			;
+		config.configure(ASIDE)
+			.substateOf(ENGAGED)
+			.onEntry(() -> System.out.println("Entering ASIDE"))
+			;
+		config.configure(INTRO)
+			.substateOf(ENGAGED)
+			.onEntry(() -> System.out.println("Entering INTRO"))
+			;
+		
+		/* Ezzie is requesting cards be drawn */
+		
+		config.configure(REQUESTING)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate REQUESTING"))
+			;
+		config.configure(REQUESTING_PAST)
+			.substateOf(REQUESTING)
+			.onEntry(() -> System.out.println("Entering REQUESTING_PAST"))
+			;
+		config.configure(RECEIVING_PAST)
+			.substateOf(REQUESTING)
+			.onEntry(() -> System.out.println("Entering RECEIVING_PAST"))
+			;
+		config.configure(REQUESTING_PRESENT)
+			.substateOf(REQUESTING)
+			.onEntry(() -> System.out.println("Entering REQUESTING_PRESENT"))
+			;
+		config.configure(RECEIVING_PRESENT)
+			.substateOf(REQUESTING)
+			.onEntry(() -> System.out.println("Entering RECEIVING_PRESENT"))
+			;
+		config.configure(REQUESTING_FUTURE)
+			.substateOf(REQUESTING)
+			.onEntry(() -> System.out.println("Entering REQUESTING_FUTURE"))
+			;
+		config.configure(RECEIVING_FUTURE)
+			.substateOf(REQUESTING)
+			.onEntry(() -> System.out.println("Entering RECEIVING_FUTURE"))
+			;
+		
+		/* Ezzie is offering her reading with a little help from Benny */
+		
+		config.configure(READING)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate READING"))
+			;
+		config.configure(READING_INTRO)
+			.substateOf(READING)
+			.onEntry(() -> System.out.println("Entering READING_INTRO"))
+			;
+		config.configure(READING_NARRATION)
+			.substateOf(READING)
+			.onEntry(() -> System.out.println("Entering READING_NARRATION"))
+			;
+		config.configure(READING_CLOSE)
+			.substateOf(READING)
+			.onEntry(() -> System.out.println("Entering READING_CLOSE"))
+			;
+
+		/* Ezzie is delivering printout and vouchers */
+		
+		config.configure(PRINTING)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate PRINTING"))
+			;
+		config.configure(PRINTING_INTRO)
+			.substateOf(PRINTING)
+			.onEntry(() -> System.out.println("Entering PRINTING_INTRO"))
+			;
+		config.configure(PRINTING_READING)
+			.substateOf(PRINTING)
+			.onEntry(() -> System.out.println("Entering PRINTING_READING"))
+			;
+		config.configure(BANDY)
+			.substateOf(PRINTING)
+			.onEntry(() -> System.out.println("Entering BANDY"))
+			;
+		config.configure(BEACHES)
+			.substateOf(PRINTING)
+			.onEntry(() -> System.out.println("Entering BEACHES"))
+			;
+		config.configure(ESTRALADA)
+			.substateOf(PRINTING)
+			.onEntry(() -> System.out.println("ESTRALADA"))
+			;
+		
+		/* Ezzie's reading is ending */
+		
+		config.configure(CLOSING)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate CLOSING"))
+			;
+		
+		/* Some twat has put cards in the wrong place at the wrong time */
+		
+		config.configure(FIX_PLACEMENT)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate FIX_PLACEMENT"))
+			;
+		config.configure(FIX_PAST)
+			.substateOf(FIX_PLACEMENT)
+			.onEntry(() -> System.out.println("Entering FIX_PAST"))
+			;
+		config.configure(FIX_PRESENT)
+			.substateOf(FIX_PLACEMENT)
+			.onEntry(() -> System.out.println("Entering FIX_PRESENT"))
+			;
+		config.configure(FIX_FUTURE)
+			.substateOf(FIX_PLACEMENT)
+			.onEntry(() -> System.out.println("Entering FIX_FUTURE"))
+			;
+		config.configure(FIX_JOCKER)
+			.substateOf(FIX_PLACEMENT)
+			.onEntry(() -> System.out.println("Entering FIX_JOCKER"))
+			;
+		
+		/* The printer made a booboo */
+		
+		config.configure(FIX_PRINTER)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate FIX_PRINTER"))
+			;
+		
+		/* Cards were not put away for next reading */
+		
+		config.configure(RESET_BOOTH)
+			.substateOf(RUNNING)
+			.onEntry(() -> System.out.println("Entering Superstate RESET_BOOTH"))
+			;
+		
+		/* OLD */
+		
+		config.configure(IDLE)
+			.permit(APPROACH_SENSOR, CURIOUS)
+			.permit(PRESENCE_SENSOR, ENGAGED)
 			.onEntry(this::idle)
 			.onExit(this::idleExit)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.TIMEOUT)
-			.ignore(Trigger.ADVANCE)
-			.ignore(Trigger.BAD_PLACEMENT);
+			.ignore(PAST_READ)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(TIMEOUT)
+			.ignore(ADVANCE)
+			.ignore(BAD_PLACEMENT);
 	
-		config.configure(State.CURIOUS)
-			.permit(Trigger.PRESENCE_SENSOR, State.ENGAGED)
-			.permit(Trigger.ADVANCE, State.IDLE)
+		config.configure(CURIOUS)
+			.permit(PRESENCE_SENSOR, ENGAGED)
+			.permit(ADVANCE, IDLE)
 			.onEntry(this::curious)
 			.onExit(this::curiousExit)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.TIMEOUT)		
-			.ignore(Trigger.BAD_PLACEMENT);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PAST_READ)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(TIMEOUT)		
+			.ignore(BAD_PLACEMENT);
 		
-		config.configure(State.ENGAGED)
-			.permit(Trigger.PAST_READ, State.REQUESTING_PRESENT)
-			.permit(Trigger.ADVANCE, State.QUINN)
-			.permit(Trigger.TIMEOUT, State.IDLE)
-			.permit(Trigger.BAD_PLACEMENT, State.RESET_BOOTH)
+		config.configure(ENGAGED)
+			.permit(PAST_READ, REQUESTING_PRESENT)
+			.permit(ADVANCE, QUINN)
+			.permit(TIMEOUT, IDLE)
+			.permit(BAD_PLACEMENT, RESET_BOOTH)
 			.onEntry(this::engaged)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR);
 		
-		config.configure(State.QUINN)
-			.permit(Trigger.ADVANCE, State.ASIDE)
-			.substateOf(State.ENGAGED)
+		config.configure(QUINN)
+			.permit(ADVANCE, ASIDE)
+			.substateOf(ENGAGED)
 			.onEntry(this::quinn);
 	
-		config.configure(State.ASIDE)
-			.permit(Trigger.ADVANCE, State.INTRO)
-			.substateOf(State.ENGAGED)
+		config.configure(ASIDE)
+			.permit(ADVANCE, INTRO)
+			.substateOf(ENGAGED)
 			.onEntry(this::aside);
 		
-		config.configure(State.INTRO)
-			.permit(Trigger.ADVANCE, State.REQUESTING_PAST)
-			.substateOf(State.ENGAGED)
+		config.configure(INTRO)
+			.permit(ADVANCE, REQUESTING_PAST)
+			.substateOf(ENGAGED)
 			.onEntry(this::intro);
 		
-		config.configure(State.REQUESTING_PAST)
-			.permit(Trigger.PAST_READ, State.REQUESTING_PRESENT)
-			.permit(Trigger.TIMEOUT, State.IDLE)
-			.permit(Trigger.BAD_PLACEMENT, State.FIX_PLACEMENT)
+		config.configure(REQUESTING_PAST)
+			.permit(PAST_READ, REQUESTING_PRESENT)
+			.permit(TIMEOUT, IDLE)
+			.permit(BAD_PLACEMENT, FIX_PLACEMENT)
 			.onEntry(this::requestingPast)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.ADVANCE);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(ADVANCE);
 		
-		config.configure(State.REQUESTING_PRESENT)
-			.permit(Trigger.PRESENT_READ, State.REQUESTING_FUTURE)
-			.permit(Trigger.TIMEOUT, State.IDLE)
-			.permit(Trigger.BAD_PLACEMENT, State.FIX_PLACEMENT)
+		config.configure(REQUESTING_PRESENT)
+			.permit(PRESENT_READ, REQUESTING_FUTURE)
+			.permit(TIMEOUT, IDLE)
+			.permit(BAD_PLACEMENT, FIX_PLACEMENT)
 			.onEntry(this::requestingPresent)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.ADVANCE);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PAST_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(ADVANCE);
 		
-		config.configure(State.REQUESTING_FUTURE)
-			.permit(Trigger.FUTURE_READ, State.READING)
-			.permit(Trigger.TIMEOUT, State.IDLE)
-			.permit(Trigger.BAD_PLACEMENT, State.FIX_PLACEMENT)
+		config.configure(REQUESTING_FUTURE)
+			.permit(FUTURE_READ, READING)
+			.permit(TIMEOUT, IDLE)
+			.permit(BAD_PLACEMENT, FIX_PLACEMENT)
 			.onEntry(this::requestingFuture)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.ADVANCE);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PAST_READ)
+			.ignore(PRESENT_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(ADVANCE);
 		
-		config.configure(State.READING)
-			.permit(Trigger.ADVANCE, State.CLOSING)
+		config.configure(READING)
+			.permit(ADVANCE, CLOSING)
 			.onEntry(this::reading)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.TIMEOUT)
-			.ignore(Trigger.BAD_PLACEMENT);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PAST_READ)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(TIMEOUT)
+			.ignore(BAD_PLACEMENT);
 		
-		config.configure(State.READING_PAST)
-			.permit(Trigger.ADVANCE, State.READING_PRESENT)
-			.substateOf(State.READING)
-			.onEntry(this::readPast);
-		
-		config.configure(State.READING_PRESENT)
-			.permit(Trigger.ADVANCE, State.READING_FUTURE)
-			.substateOf(State.READING_FUTURE)
-			.onEntry(this::readPresent);
-		
-		config.configure(State.READING_FUTURE)
-			.permit(Trigger.ADVANCE, State.CLOSING)
-			.substateOf(State.READING)
-			.onEntry(this::readFuture);
-		
-		config.configure(State.FIX_PLACEMENT)
-			.permit(Trigger.ADVANCE, State.REQUESTING_PAST)
-			.permit(Trigger.TIMEOUT, State.RESET_BOOTH)
+		config.configure(FIX_PLACEMENT)
+			.permit(ADVANCE, REQUESTING_PAST)
+			.permit(TIMEOUT, RESET_BOOTH)
 			.onEntry(this::fixPlacement)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.BAD_PLACEMENT);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PAST_READ)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(BAD_PLACEMENT);
 		
-		config.configure(State.RESET_BOOTH)
-			.permit(Trigger.ADVANCE, State.ENGAGED)
+		config.configure(RESET_BOOTH)
+			.permit(ADVANCE, ENGAGED)
 			.onEntry(this::resetBooth)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.TIMEOUT)
-			.ignore(Trigger.BAD_PLACEMENT);
-		
-		config.configure(State.CLOSING)
-			.permit(Trigger.ADVANCE, State.IDLE)
-			.permit(Trigger.PRINTER_ERROR, State.FIX_PRINTER)
-			.onEntry(this::closing)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.TIMEOUT)
-			.ignore(Trigger.BAD_PLACEMENT);
-		
-		config.configure(State.FIX_PRINTER)
-			.permit(Trigger.ADVANCE, State.CLOSING)
-			.onEntry(this::fixPrinter)
-			.ignore(Trigger.APPROACH_SENSOR)
-			.ignore(Trigger.PRESENCE_SENSOR)
-			.ignore(Trigger.PAST_READ)
-			.ignore(Trigger.PRESENT_READ)
-			.ignore(Trigger.FUTURE_READ)
-			.ignore(Trigger.PRINTER_ERROR)
-			.ignore(Trigger.TIMEOUT)
-			.ignore(Trigger.BAD_PLACEMENT);
+			.ignore(APPROACH_SENSOR)
+			.ignore(PRESENCE_SENSOR)
+			.ignore(PAST_READ)
+			.ignore(PRESENT_READ)
+			.ignore(FUTURE_READ)
+			.ignore(PRINTER_ERROR)
+			.ignore(TIMEOUT)
+			.ignore(BAD_PLACEMENT);
+
 					
 		/* @formatter:on */
 
-		try {
-			config.generateDotFileInto(System.out, true);
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		EzzieMachine stateMachine = new EzzieMachine(State.IDLE, config);
+//		try {
+//			config.generateDotFileInto(System.out, true);
+//		} catch (IOException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
+//		}
+		EzzieMachine stateMachine = new EzzieMachine(RUNNING, config);
 		stateMachine.fireInitialTransition();
 	    
 		return stateMachine;
@@ -267,20 +426,18 @@ public class EzzieMachineConfiguration {
 	
 	public void idle() {
 		
-		sounds.stopAll();
-		
-		music = sounds.get("U01");
+		music = sounds.getPlayerFor("U01");
 		music.setCycleCount(Integer.MAX_VALUE);
 		music.play();
 		
 		System.out.println("idle");
 		carousel.setFast(false);
-		carousel.add(sounds.get("A01"));
-		carousel.add(sounds.get("A02"));
-		carousel.add(sounds.get("A03"));
-		carousel.add(sounds.get("A04"));
-		carousel.add(sounds.get("A05"));
-		carousel.add(sounds.get("A06"));
+		carousel.add(sounds.getPlayerFor("A01"));
+		carousel.add(sounds.getPlayerFor("A02"));
+		carousel.add(sounds.getPlayerFor("A03"));
+		carousel.add(sounds.getPlayerFor("A04"));
+		carousel.add(sounds.getPlayerFor("A05"));
+		carousel.add(sounds.getPlayerFor("A06"));
 		carousel.setNextIndex(random.nextInt(4));
 		controller.blackMode();
 	}
@@ -293,14 +450,14 @@ public class EzzieMachineConfiguration {
 		System.out.println("curious");
 		carousel.setFast(true);
 		carousel.setNextIndex(0); /* MmeZ's curious announcement will be the same every time */
-		carousel.add(sounds.get("E01"));
-		carousel.add(sounds.get("E02"));
-		carousel.add(sounds.get("E03"));
+		carousel.add(sounds.getPlayerFor("E01"));
+		carousel.add(sounds.getPlayerFor("E02"));
+		carousel.add(sounds.getPlayerFor("E03"));
 		controller.blackMode();
 		
 		timer.schedule(new TimerTask() {
 	        public void run() {
-	        	stateMachine.fire(Trigger.ADVANCE);
+	        	stateMachine.fire(ADVANCE);
 	        }
 	    }, 30000);
 	}
@@ -310,83 +467,72 @@ public class EzzieMachineConfiguration {
 		music.stop();
 	}
 	
-	private MediaChain chain;
-	
-	private MediaPlayer sceneSound;
-	
 	public void engaged() {
 		System.out.println("engaged");
 		controller.ezzieMode();
-		sounds.stopAll();
-		sceneSound = sounds.get("R01");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
-		sceneSound.play();
+		val sceneSound = sounds.getPlayerFor("R01");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 	
 	public void quinn() {
 		System.out.println("quinn");
 		controller.quinnMode();
-		sounds.stopAll();
-		sceneSound = sounds.get("R02");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
-		sceneSound.play();
+		val sceneSound = sounds.getPlayerFor("R02");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 
 	public void aside() {
 		System.out.println("aside");
 		controller.bennyMode();
-		sounds.stopAll();
-		sceneSound = sounds.get("R0" + random.nextInt(3, 5));
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
-		sceneSound.play();
+		val sceneSound = sounds.getPlayerFor("R0" + random.nextInt(3, 5));
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 	
 	public void intro() {
 		System.out.println("intro");
 		controller.ezzieMode();
-		sounds.stopAll();
-		sceneSound = sounds.get("R05");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
-		sceneSound.play();
+		val sceneSound = sounds.getPlayerFor("R05");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 	
 	public void requestingPast() {
 		System.out.println("requesting past");
 		controller.ezzieMode();
-		sounds.stopAll();
-		sceneSound = sounds.get("R06");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
-		sceneSound.play();
+		val sceneSound = sounds.getPlayerFor("R06");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 
 	public void requestingPresent() {
 		System.out.println("requesting present");
 		controller.ezzieMode();
-		sounds.stopAll();
-		sceneSound = sounds.get("R15");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
-		chain = new MediaChain(sceneSound);
-		chain.wrap(sounds.get("I0" + random.nextInt(1, 8)));
+		val sceneSound = sounds.getPlayerFor("R15");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		sceneChain = new MediaChain(sceneSound);
+		sceneChain.wrap(sounds.getPlayerFor("I0" + random.nextInt(1, 8)));
 		Optional<Card> card = gameModel.getCardInPosition(Position.PAST);
 		if (card.isPresent()) {
-			chain.wrap(sounds.get(card.get().tag()));
+			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
 		}
-		chain.getHead().play();	
+		sceneChain.getHead().play();	
 	}
 
 	public void requestingFuture() {
 		System.out.println("requesting future");
-		controller.ezzieMode();
-		sounds.stopAll();		
-		sceneSound = sounds.get("R16");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
-		chain = new MediaChain(sceneSound);
-		chain.wrap(sounds.get("I0" + random.nextInt(1, 8)));
+		controller.ezzieMode();	
+		val sceneSound = sounds.getPlayerFor("R16");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		sceneChain = new MediaChain(sceneSound);
+		sceneChain.wrap(sounds.getPlayerFor("I0" + random.nextInt(1, 8)));
 		Optional<Card> card = gameModel.getCardInPosition(Position.PRESENT);
 		if (card.isPresent()) {
-			chain.wrap(sounds.get(card.get().tag()));
+			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
 		}
-		chain.getHead().play();		
+		sceneChain.getHead().play();		
 	}
 
 	public void readPast() {
@@ -400,22 +546,21 @@ public class EzzieMachineConfiguration {
 	public void reading() {
 		System.out.println("reading");
 		
-		sounds.stopAll();
-		music = sounds.get("U02");
+		music = sounds.getPlayerFor("U02");
 		music.setCycleCount(1);
 		music.play();
 		
-		sceneSound = sounds.get("R08");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
+		val sceneSound = sounds.getPlayerFor("R08");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		
-		chain = new MediaChain(sceneSound);
-		chain.wrap(sounds.get("R07"));
-		chain.wrap(sounds.get("I0" + random.nextInt(1, 8)));
+		sceneChain = new MediaChain(sceneSound);
+		sceneChain.wrap(sounds.getPlayerFor("R07"));
+		sceneChain.wrap(sounds.getPlayerFor("I0" + random.nextInt(1, 8)));
 		Optional<Card> card = gameModel.getCardInPosition(Position.FUTURE);
 		if (card.isPresent()) {
-			chain.wrap(sounds.get(card.get().tag()));
+			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
 		}		
-		chain.getHead().play();	
+		sceneChain.getHead().play();	
 	}
 
 	public void fixPlacement() {
@@ -429,13 +574,27 @@ public class EzzieMachineConfiguration {
 	public void closing() {
 		System.out.println("closing");
 		controller.ezzieMode();
-		sounds.stopAll();
-		sceneSound = sounds.get("R13");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(Trigger.ADVANCE));
+		val sceneSound = sounds.getPlayerFor("R13");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		
 	}
 
 	public void fixPrinter() {
 		System.out.println("fix printer");
+	}
+	
+	/* new methods */
+	
+	public void advance() {
+
+		//stateMachine.fire(ADVANCE);
+		
+		/* Wrapping in a timer to trick spring into ignoring the circularity */
+		
+		timer.schedule(new TimerTask() {
+	        public void run() {
+	        	stateMachine.fire(ADVANCE);
+	        }
+	    }, 100);
 	}
 }
