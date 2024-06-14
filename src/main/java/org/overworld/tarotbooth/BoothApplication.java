@@ -23,7 +23,7 @@ public class BoothApplication extends Application {
 		 * JavaFX Initialisation has been moved to this bean, but it needs to happen on
 		 * the JavaFX application thread
 		 */
-		springContext.getBean(EzzieMachineConfiguration.class).initialize();
+		springContext.getBean(EzzieMachineActions.class).initialize();
 	}
 
 	public static void main(String[] args) {
