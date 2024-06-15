@@ -110,6 +110,7 @@ public class EzzieMachineConfiguration {
 			;
 		config.configure(IDLE)
 			.substateOf(ATTRACTING)
+			.ignore(ADVANCE)
 			.permit(APPROACH_SENSOR, CURIOUS)
 			.permit(PRESENCE_SENSOR, ENGAGED)
 			.onEntry(() -> System.out.println("Entering IDLE"))
@@ -166,31 +167,55 @@ public class EzzieMachineConfiguration {
 		
 		config.configure(REQUESTING)
 			.substateOf(RUNNING)
+			.permit(ADVANCE, REQUESTING_PAST)
 			.onEntry(() -> System.out.println("Entering Superstate REQUESTING"))
+			.onEntry(actions::requesting)
+			.onEntry(actions::advance)
 			;
 		config.configure(REQUESTING_PAST)
 			.substateOf(REQUESTING)
+			.permit(PAST_READ, RECEIVING_PAST)
+			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_PAST"))
+			.onEntry(actions::requestingPast)
+			.onExit(actions::requestingPastExit)
 			;
 		config.configure(RECEIVING_PAST)
 			.substateOf(REQUESTING)
+			.permit(ADVANCE, REQUESTING_PRESENT)
 			.onEntry(() -> System.out.println("Entering RECEIVING_PAST"))
+			.onEntry(actions::receivingPast)
+			.onExit(actions::receivingPastExit)
 			;
 		config.configure(REQUESTING_PRESENT)
 			.substateOf(REQUESTING)
+			.permit(PRESENT_READ, RECEIVING_PRESENT)
+			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_PRESENT"))
+			.onEntry(actions::requestingPresent)
+			.onExit(actions::requestingPresentExit)
 			;
 		config.configure(RECEIVING_PRESENT)
 			.substateOf(REQUESTING)
+			.permit(ADVANCE, REQUESTING_FUTURE)
 			.onEntry(() -> System.out.println("Entering RECEIVING_PRESENT"))
+			.onEntry(actions::receivingPresent)
+			.onExit(actions::receivingPresentExit)
 			;
 		config.configure(REQUESTING_FUTURE)
 			.substateOf(REQUESTING)
+			.permit(FUTURE_READ, RECEIVING_FUTURE)
+			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_FUTURE"))
+			.onEntry(actions::requestingFuture)
+			.onExit(actions::requestingFutureExit)
 			;
 		config.configure(RECEIVING_FUTURE)
 			.substateOf(REQUESTING)
+			.permit(ADVANCE, READING)
 			.onEntry(() -> System.out.println("Entering RECEIVING_FUTURE"))
+			.onEntry(actions::receivingFuture)
+			.onExit(actions::receivingFutureExit)
 			;
 		
 		/* Ezzie is offering her reading with a little help from Benny */

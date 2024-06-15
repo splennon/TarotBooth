@@ -56,10 +56,18 @@ public class BoothController implements Initializable {
     	allPanes = new Pane[] {beaches, curtains, benny, drawing, ezzie, reading, estralada, quinn};
     }
     
-    public void estraladaMode() {}
-    public void beachesMode() {}
-    public void readingMode() {}
-    public void drawingMode() {}
+    public void estraladaMode() {
+    	fadeTo(estralada);
+    }
+    public void beachesMode() {
+    	fadeTo(beaches);
+    }
+    public void readingMode() {
+    	fadeTo(reading);
+    }
+    public void drawingMode() {
+    	fadeTo(drawing);	
+    }
     
     public void quinnMode() {
     	fadeTo(quinn);
