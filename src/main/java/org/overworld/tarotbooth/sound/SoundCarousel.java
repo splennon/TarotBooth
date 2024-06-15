@@ -2,7 +2,6 @@ package org.overworld.tarotbooth.sound;
 
 import java.util.ArrayList;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
@@ -43,7 +42,13 @@ public class SoundCarousel extends ArrayList<MediaPlayer>{
 			nextIndex = 0;
 		
 		MediaPlayer sound = this.get(nextIndex++);
-		sound.setOnEndOfMedia(sound::stop);
+		sound.setOnEndOfMedia(null);
 		sound.play();
-	}	
+	}
+	
+	@Override
+	public void clear() {
+		this.stream().forEach(MediaPlayer::stop);
+		super.clear();
+	}
 }

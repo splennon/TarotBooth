@@ -19,11 +19,14 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PostConstruct;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import lombok.Getter;
 import lombok.val;
 
@@ -115,6 +118,14 @@ public class EzzieMachineActions {
 		}, 2500);
 	}
 
+	public void fadeVolumeTo(double target) {
+		
+		Timeline timeline = new Timeline(
+		    new KeyFrame(Duration.seconds(2),
+		        new KeyValue(carnivalMusic.volumeProperty(), target)));
+		timeline.play();
+	}
+	
 	public void running() {
 		carnivalMusic = sounds.getPlayerFor("U01");
 		carnivalMusic.setCycleCount(Integer.MAX_VALUE);
@@ -144,6 +155,8 @@ public class EzzieMachineActions {
 		carousel.clear();
 	}
 
+	private Timer curiousTimeoutTimer;
+	 
 	public void curious() {
 		carousel.setFast(true);
 		carousel.setNextIndex(0); /* MmeZ's curious announcement will be the same every time */
@@ -151,7 +164,9 @@ public class EzzieMachineActions {
 		carousel.add(sounds.getPlayerFor("E02"));
 		carousel.add(sounds.getPlayerFor("E03"));
 
-		timer.schedule(new TimerTask() {
+		curiousTimeoutTimer = new Timer("Curious Timeout");
+		
+		curiousTimeoutTimer.schedule(new TimerTask() {
 			public void run() {
 				stateMachine.fire(ADVANCE);
 			}
@@ -159,43 +174,59 @@ public class EzzieMachineActions {
 	}
 
 	public void curiousExit() {
+		curiousTimeoutTimer.cancel();
 		carousel.clear();
 	}
 
-	/* Old actions */
-
-	public void engaged() {
-		System.out.println("engaged");
+	public void hello() {
 		controller.ezzieMode();
+		fadeVolumeTo(0.09);
 		val sceneSound = sounds.getPlayerFor("R01");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
+	
+	public void helloExit() {
+		sceneChain.stopAll();
+	}
 
 	public void quinn() {
-		System.out.println("quinn");
 		controller.quinnMode();
+		fadeVolumeTo(0.0);
 		val sceneSound = sounds.getPlayerFor("R02");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 
+	public void quinnExit() {
+		sceneChain.stopAll();
+	}
+	
 	public void aside() {
-		System.out.println("aside");
 		controller.bennyMode();
 		val sceneSound = sounds.getPlayerFor("R0" + random.nextInt(3, 5));
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 
+	public void asideExit() {
+		sceneChain.stopAll();
+	}
+	
 	public void intro() {
-		System.out.println("intro");
+		fadeVolumeTo(0.08);
 		controller.ezzieMode();
 		val sceneSound = sounds.getPlayerFor("R05");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
 
+	public void introExit() {
+		sceneChain.stopAll();
+	}
+	
+	/* Old actions */
+	
 	public void requestingPast() {
 		System.out.println("requesting past");
 		controller.ezzieMode();

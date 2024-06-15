@@ -49,8 +49,6 @@ import static org.overworld.tarotbooth.EzzieMachine.Trigger.PRESENT_READ;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.PRINTER_ERROR;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.TIMEOUT;
 
-import java.util.TimerTask;
-
 import org.overworld.tarotbooth.EzzieMachine.State;
 import org.overworld.tarotbooth.EzzieMachine.Trigger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,8 +56,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import com.github.oxo42.stateless4j.StateMachineConfig;
-
-import jakarta.annotation.PostConstruct;
 
 @Configuration
 public class EzzieMachineConfiguration {
@@ -133,23 +129,37 @@ public class EzzieMachineConfiguration {
 		
 		config.configure(ENGAGED)
 			.substateOf(RUNNING)
+			.permit(ADVANCE, HELLO)
 			.onEntry(() -> System.out.println("Entering Superstate ENGAGED"))
+			.onEntry(actions::advance)
 			;
 		config.configure(HELLO)
 			.substateOf(ENGAGED)
+			.permit(ADVANCE, QUINN)
 			.onEntry(() -> System.out.println("Entering HELLO"))
+			.onEntry(actions::hello)
+			.onExit(actions::helloExit)
 			;
 		config.configure(QUINN)
 			.substateOf(ENGAGED)
+			.permit(ADVANCE, ASIDE)
 			.onEntry(() -> System.out.println("Entering QUINN"))
+			.onEntry(actions::quinn)
+			.onExit(actions::quinnExit)
 			;
 		config.configure(ASIDE)
 			.substateOf(ENGAGED)
+			.permit(ADVANCE, INTRO)
 			.onEntry(() -> System.out.println("Entering ASIDE"))
+			.onEntry(actions::aside)
+			.onExit(actions::asideExit)
 			;
 		config.configure(INTRO)
 			.substateOf(ENGAGED)
+			.permit(ADVANCE, REQUESTING)
 			.onEntry(() -> System.out.println("Entering INTRO"))
+			.onEntry(actions::intro)
+			.onExit(actions::introExit)
 			;
 		
 		/* Ezzie is requesting cards be drawn */

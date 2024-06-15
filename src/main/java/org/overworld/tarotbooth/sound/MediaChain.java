@@ -17,6 +17,7 @@ public class MediaChain {
 	
 	public MediaChain(MediaPlayer last) {
 		this.head = last;
+		allPlayers.add(last);
 	}
 	
 	public MediaChain(MediaPlayer first, MediaPlayer second, MediaPlayer... remainder) {
@@ -46,6 +47,9 @@ public class MediaChain {
 	
 	public void stopAll() {
 		
-		allPlayers.stream().forEach(MediaPlayer::stop);
+		allPlayers.stream().forEach(mp -> {
+			mp.setOnEndOfMedia(null);
+			mp.stop();
+		});
 	}
 }
