@@ -11,16 +11,65 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<StackPane minHeight="480.0" minWidth="640.0" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.BoothController">
+<StackPane minHeight="1080" minWidth="1920" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.BoothController">
     <children>
-      <AnchorPane layoutX="10.0" layoutY="10.0" prefHeight="200.0" prefWidth="200.0" styleClass="blackBackground" stylesheets="@global.css" />
-      <AnchorPane fx:id="curtains" opacity="0.0" prefHeight="200.0" prefWidth="200.0" styleClass="curtainsBackground" stylesheets="@global.css" />
+      <AnchorPane opacity="1.0" styleClass="blackBackground" stylesheets="@global.css" />
+      <AnchorPane fx:id="curtains" opacity="0.0" styleClass="curtainsBackground" stylesheets="@global.css" />
       <AnchorPane fx:id="ezzie" opacity="0.0" styleClass="ezzieBig" stylesheets="@global.css" />
       <AnchorPane fx:id="benny" opacity="0.0" styleClass="bennyBig" stylesheets="@global.css" />
       <AnchorPane fx:id="estralada" opacity="0.0" styleClass="estraladaAd" stylesheets="@global.css" />
       <AnchorPane fx:id="beaches" opacity="0.0" styleClass="beaches" stylesheets="@global.css" />
-      <AnchorPane fx:id="reading" opacity="0.0" styleClass="reading" stylesheets="@global.css" />
-      <AnchorPane fx:id="drawing" opacity="0.0" styleClass="drawing" stylesheets="@global.css" />
       <AnchorPane fx:id="quinn" opacity="0.0" styleClass="quinnBig" stylesheets="@global.css" />
+      <AnchorPane fx:id="drawing" opacity="0.0" styleClass="drawing" stylesheets="@global.css">
+         <children>
+            <ImageView fitHeight="492.0" fitWidth="283.0" layoutX="820.0" layoutY="565.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/frame.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="492.0" fitWidth="283.0" layoutX="290.0" layoutY="565.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/frame.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="492.0" fitWidth="283.0" layoutX="1350.0" layoutY="565.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/frame.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="pastCard" fitHeight="418.0" fitWidth="237.0" layoutX="315.0" layoutY="590.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/placeCard.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="presentCard" fitHeight="418.0" fitWidth="237.0" layoutX="845.0" layoutY="590.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/placeCard.png" />
+               </image>
+            </ImageView>
+            <ImageView fx:id="futureCard" fitHeight="418.0" fitWidth="237.0" layoutX="1375.0" layoutY="590.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/placeCard.png" />
+               </image>
+            </ImageView>
+         </children></AnchorPane>
+      <AnchorPane fx:id="reading" opacity="0.0" styleClass="reading" stylesheets="@global.css">
+         <children>
+            <ImageView fx:id="meaningCard" fitHeight="417.0" fitWidth="235.0" layoutX="184.0" layoutY="576.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/placeCard.png" />
+               </image>
+            </ImageView>
+            <ImageView fitHeight="586.0" fitWidth="1897.0" layoutX="14.0" layoutY="493.0" pickOnBounds="true" preserveRatio="true">
+               <image>
+                  <Image url="@images/frameLandscape.png" />
+               </image>
+            </ImageView>
+            <Label fx:id="meaningText" layoutX="439.0" layoutY="584.0" prefHeight="411.0" prefWidth="1280.0" text="You will meet a dark, handsome stranger in the bathroom." textFill="#ddff00" wrapText="true">
+               <font>
+                  <Font name="Rockwell Italic" size="46.0" />
+               </font>
+            </Label>
+         </children></AnchorPane>
     </children>
 </StackPane>

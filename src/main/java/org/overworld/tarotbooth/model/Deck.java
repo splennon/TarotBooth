@@ -13,7 +13,7 @@ public class Deck extends HashMap<String, Deck.Card> {
 		VERY_POSITIVE, POSITIVE, NEUTRAL, NEGATIVE, VERY_NEGATIVE
 	}
 
-	public static record Card(String tag, String filename, String name, String drawAudio, String pastAudio, String presentAudio,
+	public static record Card(String cardId, String filename, String name, String drawAudio, String pastAudio, String presentAudio,
 			String futureAudio, String pastText, String presentText, String futureText, Positivity positivity) {
 	};
 

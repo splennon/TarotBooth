@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.overworld.tarotbooth.images.ImageLibrary;
 import org.overworld.tarotbooth.model.Deck.Card;
 import org.overworld.tarotbooth.model.GameModel;
 import org.overworld.tarotbooth.model.Position;
@@ -24,6 +25,7 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
+import javafx.scene.image.Image;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -33,6 +35,9 @@ import lombok.val;
 @Component
 public class EzzieMachineActions {
 
+	@Autowired
+	private ImageLibrary imageLibrary;
+	
 	@Autowired
 	private BoothController controller;
 
@@ -87,7 +92,7 @@ public class EzzieMachineActions {
 		mainStage.show();
 	}
 
-	private MediaPlayer music;
+	private MediaChain ominousMusic;
 
 	private MediaPlayer carnivalMusic;
 
@@ -227,10 +232,12 @@ public class EzzieMachineActions {
 	}
 	
 	public void requesting() {
-		controller.readingMode();
+		controller.readingSetup(null, null, null);
+		controller.drawingMode();
 	}
-		
+	
 	public void requestingPast() {
+		controller.readingSetup(imageLibrary.getImage("placeCard.png"), null, null);
 		(sceneChain = new MediaChain(sounds.getPlayerFor("R06"))).getHead().play();
 	}
 	
@@ -240,13 +247,15 @@ public class EzzieMachineActions {
 
 	public void receivingPast() {
 		
+		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), null, null);
+		
 		val sceneSound = sounds.getPlayerFor("I0" + random.nextInt(1, 8));
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		sceneChain = new MediaChain(sceneSound);
 		
 		Optional<Card> card = gameModel.getCardInPosition(Position.PAST);
 		if (card.isPresent()) {
-			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
+			sceneChain.wrap(sounds.getPlayerFor(card.get().cardId()));
 		}
 		sceneChain.getHead().play();
 	}
@@ -256,6 +265,7 @@ public class EzzieMachineActions {
 	}
 		
 	public void requestingPresent() {
+		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImage("placeCard.png"), null);
 		(sceneChain = new MediaChain(sounds.getPlayerFor("R15"))).getHead().play();
 	}
 	
@@ -265,13 +275,15 @@ public class EzzieMachineActions {
 
 	public void receivingPresent() {
 		
+		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), null);
+		
 		val sceneSound = sounds.getPlayerFor("I0" + random.nextInt(1, 8));
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		sceneChain = new MediaChain(sceneSound);
 		
 		Optional<Card> card = gameModel.getCardInPosition(Position.PRESENT);
 		if (card.isPresent()) {
-			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
+			sceneChain.wrap(sounds.getPlayerFor(card.get().cardId()));
 		}
 		sceneChain.getHead().play();
 	}
@@ -281,6 +293,7 @@ public class EzzieMachineActions {
 	}
 
 	public void requestingFuture() {
+		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), imageLibrary.getImage("placeCard.png"));
 		(sceneChain = new MediaChain(sounds.getPlayerFor("R16"))).getHead().play();
 	}
 	
@@ -290,13 +303,15 @@ public class EzzieMachineActions {
 
 	public void receivingFuture() {
 		
+		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), imageLibrary.getImageForCard(gameModel.getFuture().get().cardId()));
+		
 		val sceneSound = sounds.getPlayerFor("I0" + random.nextInt(1, 8));
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		sceneChain = new MediaChain(sceneSound);
 		
 		Optional<Card> card = gameModel.getCardInPosition(Position.FUTURE);
 		if (card.isPresent()) {
-			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
+			sceneChain.wrap(sounds.getPlayerFor(card.get().cardId()));
 		}
 		sceneChain.getHead().play();
 	}
@@ -305,39 +320,96 @@ public class EzzieMachineActions {
 		sceneChain.stopAll();
 	}
 	
+	public void reading() {
+		controller.readingMode();
+	}
+	
+	public void readingIntro() {
+		controller.bennyMode();
+		
+		MediaPlayer ominous = sounds.getPlayerFor("U02");
+		ominous.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(ominousMusic = new MediaChain(ominous)).getHead().play();
+		
+		sceneChain = new MediaChain(sounds.getPlayerFor("R08"));
+		sceneChain.wrap(sounds.getPlayerFor("R07")).getHead().play();
+		
+		fadeVolumeTo(0.0);
+	}
+
+	public void readingIntroExit()  {
+		fadeVolumeTo(0.09);
+		ominousMusic.stopAll();
+		sceneChain.stopAll();
+	}
+	
+	public void readingPast() {
+		
+		Optional<Card> card = gameModel.getCardInPosition(Position.PAST);
+		if (card.isPresent()) {
+			val sceneSound = sounds.getPlayerFor(card.get().cardId(), Position.PAST);
+			sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+			sceneChain = new MediaChain(sceneSound);
+			sceneChain.wrap(sounds.getPlayerFor("R09"));
+			sceneChain.getHead().play();
+			
+			controller.meaningSetup(imageLibrary.getImageForCard(card.get().cardId()), card.get().pastText());
+		}
+	}
+	
+	public void readingPastExit() {
+		sceneChain.stopAll();
+	}
+	
+	public void readingPresent() {
+		
+		Optional<Card> card = gameModel.getCardInPosition(Position.PRESENT);
+		if (card.isPresent()) {
+			val sceneSound = sounds.getPlayerFor(card.get().cardId(), Position.PRESENT);
+			sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+			sceneChain = new MediaChain(sceneSound);
+			sceneChain.wrap(sounds.getPlayerFor("R10"));
+			sceneChain.getHead().play();
+			
+			controller.meaningSetup(imageLibrary.getImageForCard(card.get().cardId()), card.get().presentText());
+		}	
+	}
+	
+	public void readingPresentExit() {
+		sceneChain.stopAll();
+	}
+	
+	public void readingFuture() {
+		
+		Optional<Card> card = gameModel.getCardInPosition(Position.FUTURE);
+		if (card.isPresent()) {
+			val sceneSound = sounds.getPlayerFor(card.get().cardId(), Position.FUTURE);
+			sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+			sceneChain = new MediaChain(sceneSound);
+			sceneChain.wrap(sounds.getPlayerFor("R11"));
+			sceneChain.getHead().play();
+			
+			controller.meaningSetup(imageLibrary.getImageForCard(card.get().cardId()), card.get().futureText());
+		}	
+	}
+	
+	public void readingFutureExit() {
+		sceneChain.stopAll();
+	}
+	public void readingClose() {
+		val sceneSound = sounds.getPlayerFor("R12");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
+	}
+	
+	public void readingCloseExit() {
+		sceneChain.stopAll();
+	}
 	
 	/* OLD */
 	
-	public void readPast() {
-
-	}
-
-	public void readPresent() {
-	}
-
-	public void readFuture() {
-	}
-
-	public void reading() {
-		System.out.println("reading");
-
-		music = sounds.getPlayerFor("U02");
-		music.setCycleCount(1);
-		music.play();
-
-		val sceneSound = sounds.getPlayerFor("R08");
-		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
-
-		sceneChain = new MediaChain(sceneSound);
-		sceneChain.wrap(sounds.getPlayerFor("R07"));
-		sceneChain.wrap(sounds.getPlayerFor("I0" + random.nextInt(1, 8)));
-		Optional<Card> card = gameModel.getCardInPosition(Position.FUTURE);
-		if (card.isPresent()) {
-			sceneChain.wrap(sounds.getPlayerFor(card.get().tag()));
-		}
-		sceneChain.getHead().play();
-	}
-
+	
+	
 	public void fixPlacement() {
 		System.out.println("fix placement");
 	}

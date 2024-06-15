@@ -368,12 +368,12 @@ public class SoundLibrary extends HashMap<String, Media> {
 		this.put("W14R", new Media(SoundLibrary.class.getResource("W14R.mp3").toString()));
 	}
 	
-	public MediaPlayer getPlayerFor(String tag) {
-		return new MediaPlayer(this.get(tag));
+	public MediaPlayer getPlayerFor(String cardId) {
+		return new MediaPlayer(this.get(cardId));
 	}
 	
 	public MediaPlayer getPlayerFor(Card card, Position position) {
-		return getPlayerFor(card.tag(), position);
+		return getPlayerFor(card.cardId(), position);
 	}
 
 	public MediaPlayer getPlayerFor(String cardId, Position position) {

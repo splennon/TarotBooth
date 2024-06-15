@@ -24,8 +24,10 @@ import static org.overworld.tarotbooth.EzzieMachine.State.PRINTING_READING;
 import static org.overworld.tarotbooth.EzzieMachine.State.QUINN;
 import static org.overworld.tarotbooth.EzzieMachine.State.READING;
 import static org.overworld.tarotbooth.EzzieMachine.State.READING_CLOSE;
+import static org.overworld.tarotbooth.EzzieMachine.State.READING_FUTURE;
 import static org.overworld.tarotbooth.EzzieMachine.State.READING_INTRO;
-import static org.overworld.tarotbooth.EzzieMachine.State.READING_NARRATION;
+import static org.overworld.tarotbooth.EzzieMachine.State.READING_PAST;
+import static org.overworld.tarotbooth.EzzieMachine.State.READING_PRESENT;
 import static org.overworld.tarotbooth.EzzieMachine.State.RECEIVING_FUTURE;
 import static org.overworld.tarotbooth.EzzieMachine.State.RECEIVING_PAST;
 import static org.overworld.tarotbooth.EzzieMachine.State.RECEIVING_PRESENT;
@@ -222,19 +224,45 @@ public class EzzieMachineConfiguration {
 		
 		config.configure(READING)
 			.substateOf(RUNNING)
+			.permit(ADVANCE, READING_INTRO)
 			.onEntry(() -> System.out.println("Entering Superstate READING"))
+			.onEntry(actions::reading)
+			.onEntry(actions::advance)
 			;
 		config.configure(READING_INTRO)
 			.substateOf(READING)
+			.permit(ADVANCE,  READING_PAST)
 			.onEntry(() -> System.out.println("Entering READING_INTRO"))
+			.onEntry(actions::readingIntro)
+			.onExit(actions::readingIntroExit)
 			;
-		config.configure(READING_NARRATION)
+		config.configure(READING_PAST)
 			.substateOf(READING)
-			.onEntry(() -> System.out.println("Entering READING_NARRATION"))
+			.permit(ADVANCE,  READING_PRESENT)
+			.onEntry(() -> System.out.println("Entering READING_PAST"))
+			.onEntry(actions::readingPast)
+			.onExit(actions::readingPastExit)
+			;
+			config.configure(READING_PRESENT)
+			.substateOf(READING)
+			.permit(ADVANCE,  READING_FUTURE)
+			.onEntry(() -> System.out.println("Entering READING_PRESENT"))
+			.onEntry(actions::readingPresent)
+			.onExit(actions::readingPresentExit)
+			;
+			config.configure(READING_FUTURE)
+			.substateOf(READING)
+			.permit(ADVANCE,  READING_CLOSE)
+			.onEntry(() -> System.out.println("Entering READING_FUTURE"))
+			.onEntry(actions::readingFuture)
+			.onExit(actions::readingFutureExit)
 			;
 		config.configure(READING_CLOSE)
 			.substateOf(READING)
+			.permit(ADVANCE,  PRINTING)
 			.onEntry(() -> System.out.println("Entering READING_CLOSE"))
+			.onEntry(actions::readingClose)
+			.onExit(actions::readingCloseExit)
 			;
 
 		/* Ezzie is delivering printout and vouchers */

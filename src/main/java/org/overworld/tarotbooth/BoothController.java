@@ -8,18 +8,22 @@ package org.overworld.tarotbooth;
 import java.net.URL;
 import java.util.ResourceBundle;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import javafx.animation.FadeTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.Pane;
 import javafx.util.Duration;
 
 @Component
 public class BoothController implements Initializable {
-
+		
     @FXML
     private AnchorPane beaches;
    
@@ -44,6 +48,21 @@ public class BoothController implements Initializable {
     @FXML
     private AnchorPane quinn;
 
+    @FXML
+    private Label meaningText;
+
+    @FXML
+    private ImageView meaningCard;
+
+    @FXML
+    private ImageView pastCard;
+
+    @FXML
+    private ImageView presentCard;
+    
+    @FXML
+    private ImageView futureCard;
+    
     private Pane current;
     
     private Pane[] allPanes;
@@ -54,6 +73,28 @@ public class BoothController implements Initializable {
     @Override
     public void initialize(URL url, ResourceBundle rb) {
     	allPanes = new Pane[] {beaches, curtains, benny, drawing, ezzie, reading, estralada, quinn};
+    	
+    	/* TODO Try using this method to advance the state machine to curtains instead of delay */
+    	
+    	pastCard.setImage(null);
+    	presentCard.setImage(null);
+    	futureCard.setImage(null);
+    	
+    	meaningText.setText("");
+    	meaningCard.setImage(null);
+    }
+    
+    public void readingSetup(Image past, Image present, Image future) {
+    	
+    	pastCard.setImage(past);
+    	presentCard.setImage(present);
+    	futureCard.setImage(future);
+    }
+    
+    public void meaningSetup(Image card, String meaning) {
+    	
+    	meaningCard.setImage(card);
+    	meaningText.setText(meaning);
     }
     
     public void estraladaMode() {
