@@ -27,7 +27,7 @@ public class SoundCarousel extends ArrayList<MediaPlayer>{
 			playOut();
 	}
 	
-	@Scheduled(fixedRate = 10000)
+	@Scheduled(fixedRate = 6500)
 	public void fastPlay() {
 		if (fast)
 			playOut();

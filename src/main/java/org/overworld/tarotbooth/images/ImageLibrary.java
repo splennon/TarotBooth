@@ -11,7 +11,7 @@ import javafx.scene.image.Image;
 public class ImageLibrary {
 	
 	@Autowired
-	Deck deck;
+	private Deck deck;
 	
 	@Value("${cardRootDirectory}")
 	private String cardRootDirectory;

@@ -25,7 +25,6 @@ import javafx.animation.KeyValue;
 import javafx.animation.Timeline;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
-import javafx.scene.image.Image;
 import javafx.scene.media.MediaPlayer;
 import javafx.stage.Stage;
 import javafx.util.Duration;
@@ -37,6 +36,12 @@ public class EzzieMachineActions {
 
 	@Autowired
 	private ImageLibrary imageLibrary;
+	
+	private TimeoutService timeoutService;
+	@Autowired
+	public void setTimeoutService(@Lazy TimeoutService timeoutService) {
+		this.timeoutService = timeoutService;
+	}
 	
 	@Autowired
 	private BoothController controller;
@@ -67,10 +72,13 @@ public class EzzieMachineActions {
 
 	private Stage mainStage, debugStage;
 	private Scene debugScene, mainScene;
-
+	
 	private Timer timer = new Timer("Autoadvance");
-
 	private MediaChain sceneChain;
+	private MediaChain ominousMusic;
+	private MediaPlayer carnivalMusic;
+	private Timer curiousTimeoutTimer;
+	 
 
 	public void initialize() throws IOException {
 
@@ -91,10 +99,6 @@ public class EzzieMachineActions {
 		mainStage.setScene(mainScene);
 		mainStage.show();
 	}
-
-	private MediaChain ominousMusic;
-
-	private MediaPlayer carnivalMusic;
 
 	public void advance() {
 
@@ -143,6 +147,7 @@ public class EzzieMachineActions {
 
 	public void attracting() {
 		controller.curtainskMode();
+		gameModel.clear();
 		fadeVolumeTo(1.0);
 	}
 
@@ -161,8 +166,6 @@ public class EzzieMachineActions {
 		carousel.clear();
 	}
 
-	private Timer curiousTimeoutTimer;
-	 
 	public void curious() {
 		carousel.setFast(true);
 		carousel.setNextIndex(0); /* MmeZ's curious announcement will be the same every time */
@@ -258,6 +261,7 @@ public class EzzieMachineActions {
 			sceneChain.wrap(sounds.getPlayerFor(card.get().cardId()));
 		}
 		sceneChain.getHead().play();
+		timeoutService.poke();
 	}
 	
 	public void receivingPastExit() {
@@ -286,6 +290,7 @@ public class EzzieMachineActions {
 			sceneChain.wrap(sounds.getPlayerFor(card.get().cardId()));
 		}
 		sceneChain.getHead().play();
+		timeoutService.poke();
 	}
 	
 	public void receivingPresentExit() {
@@ -314,6 +319,7 @@ public class EzzieMachineActions {
 			sceneChain.wrap(sounds.getPlayerFor(card.get().cardId()));
 		}
 		sceneChain.getHead().play();
+		timeoutService.poke();
 	}
 	
 	public void receivingFutureExit() {
@@ -396,6 +402,7 @@ public class EzzieMachineActions {
 	public void readingFutureExit() {
 		sceneChain.stopAll();
 	}
+	
 	public void readingClose() {
 		val sceneSound = sounds.getPlayerFor("R12");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
@@ -407,8 +414,6 @@ public class EzzieMachineActions {
 	}
 	
 	/* OLD */
-	
-	
 	
 	public void fixPlacement() {
 		System.out.println("fix placement");

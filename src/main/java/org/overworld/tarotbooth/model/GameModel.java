@@ -37,4 +37,10 @@ public class GameModel {
 			case FUTURE -> getFuture();
 		};
 	}
+
+	public void clear() {
+		past = Optional.empty();
+		present = Optional.empty();
+		future = Optional.empty();
+	}
 }

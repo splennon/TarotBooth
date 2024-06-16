@@ -133,6 +133,7 @@ public class EzzieMachineConfiguration {
 		config.configure(ENGAGED)
 			.substateOf(RUNNING)
 			.permit(ADVANCE, HELLO)
+			.permit(TIMEOUT, ATTRACTING)
 			.onEntry(() -> System.out.println("Entering Superstate ENGAGED"))
 			.onEntry(actions::advance)
 			;
@@ -170,6 +171,7 @@ public class EzzieMachineConfiguration {
 		config.configure(REQUESTING)
 			.substateOf(RUNNING)
 			.permit(ADVANCE, REQUESTING_PAST)
+			.permit(TIMEOUT, ATTRACTING)
 			.onEntry(() -> System.out.println("Entering Superstate REQUESTING"))
 			.onEntry(actions::requesting)
 			.onEntry(actions::advance)
@@ -335,134 +337,6 @@ public class EzzieMachineConfiguration {
 			.substateOf(RUNNING)
 			.onEntry(() -> System.out.println("Entering Superstate RESET_BOOTH"))
 			;
-		
-		/* OLD */
-//		
-//		config.configure(IDLE)
-//			.permit(APPROACH_SENSOR, CURIOUS)
-//			.permit(PRESENCE_SENSOR, ENGAGED)
-//			.onEntry(this::idle)
-//			.onExit(this::idleExit)
-//			.ignore(PAST_READ)
-//			.ignore(PRESENT_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(TIMEOUT)
-//			.ignore(ADVANCE)
-//			.ignore(BAD_PLACEMENT);
-//	
-//		config.configure(CURIOUS)
-//			.permit(PRESENCE_SENSOR, ENGAGED)
-//			.permit(ADVANCE, IDLE)
-//			.onEntry(this::curious)
-//			.onExit(this::curiousExit)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PAST_READ)
-//			.ignore(PRESENT_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(TIMEOUT)		
-//			.ignore(BAD_PLACEMENT);
-//		
-//		config.configure(ENGAGED)
-//			.permit(PAST_READ, REQUESTING_PRESENT)
-//			.permit(ADVANCE, QUINN)
-//			.permit(TIMEOUT, IDLE)
-//			.permit(BAD_PLACEMENT, RESET_BOOTH)
-//			.onEntry(this::engaged)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PRESENCE_SENSOR)
-//			.ignore(PRESENT_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR);
-//		
-//		config.configure(QUINN)
-//			.permit(ADVANCE, ASIDE)
-//			.substateOf(ENGAGED)
-//			.onEntry(this::quinn);
-//	
-//		config.configure(ASIDE)
-//			.permit(ADVANCE, INTRO)
-//			.substateOf(ENGAGED)
-//			.onEntry(this::aside);
-//		
-//		config.configure(INTRO)
-//			.permit(ADVANCE, REQUESTING_PAST)
-//			.substateOf(ENGAGED)
-//			.onEntry(this::intro);
-//		
-//		config.configure(REQUESTING_PAST)
-//			.permit(PAST_READ, REQUESTING_PRESENT)
-//			.permit(TIMEOUT, IDLE)
-//			.permit(BAD_PLACEMENT, FIX_PLACEMENT)
-//			.onEntry(this::requestingPast)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PRESENCE_SENSOR)
-//			.ignore(PRESENT_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(ADVANCE);
-//		
-//		config.configure(REQUESTING_PRESENT)
-//			.permit(PRESENT_READ, REQUESTING_FUTURE)
-//			.permit(TIMEOUT, IDLE)
-//			.permit(BAD_PLACEMENT, FIX_PLACEMENT)
-//			.onEntry(this::requestingPresent)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PRESENCE_SENSOR)
-//			.ignore(PAST_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(ADVANCE);
-//		
-//		config.configure(REQUESTING_FUTURE)
-//			.permit(FUTURE_READ, READING)
-//			.permit(TIMEOUT, IDLE)
-//			.permit(BAD_PLACEMENT, FIX_PLACEMENT)
-//			.onEntry(this::requestingFuture)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PRESENCE_SENSOR)
-//			.ignore(PAST_READ)
-//			.ignore(PRESENT_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(ADVANCE);
-//		
-//		config.configure(READING)
-//			.permit(ADVANCE, CLOSING)
-//			.onEntry(this::reading)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PRESENCE_SENSOR)
-//			.ignore(PAST_READ)
-//			.ignore(PRESENT_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(TIMEOUT)
-//			.ignore(BAD_PLACEMENT);
-//		
-//		config.configure(FIX_PLACEMENT)
-//			.permit(ADVANCE, REQUESTING_PAST)
-//			.permit(TIMEOUT, RESET_BOOTH)
-//			.onEntry(this::fixPlacement)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PRESENCE_SENSOR)
-//			.ignore(PAST_READ)
-//			.ignore(PRESENT_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(BAD_PLACEMENT);
-//		
-//		config.configure(RESET_BOOTH)
-//			.permit(ADVANCE, ENGAGED)
-//			.onEntry(this::resetBooth)
-//			.ignore(APPROACH_SENSOR)
-//			.ignore(PRESENCE_SENSOR)
-//			.ignore(PAST_READ)
-//			.ignore(PRESENT_READ)
-//			.ignore(FUTURE_READ)
-//			.ignore(PRINTER_ERROR)
-//			.ignore(TIMEOUT)
-//			.ignore(BAD_PLACEMENT);
-
 					
 		/* @formatter:on */
 
@@ -472,6 +346,7 @@ public class EzzieMachineConfiguration {
 //			// TODO Auto-generated catch block
 //			e.printStackTrace();
 //		}
+		
 		EzzieMachine stateMachine = new EzzieMachine(RUNNING, config);
 		stateMachine.fireInitialTransition();
 		return stateMachine;
