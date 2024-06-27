@@ -271,34 +271,64 @@ public class EzzieMachineConfiguration {
 		
 		config.configure(PRINTING)
 			.substateOf(RUNNING)
+			.permit(ADVANCE,  PRINTING_READING)
 			.onEntry(() -> System.out.println("Entering Superstate PRINTING"))
+			.onEntry(actions::advance)
+			;
+			config.configure(PRINTING_READING)
+			.substateOf(PRINTING)
+			.permit(ADVANCE,  PRINTING_INTRO)
+			.onEntry(() -> System.out.println("Entering PRINTING_READING"))
+			.onEntry(actions::printingReading)
+			.onExit(actions::printingReadingExit)
 			;
 		config.configure(PRINTING_INTRO)
 			.substateOf(PRINTING)
+			.permit(ADVANCE, BEACHES)
 			.onEntry(() -> System.out.println("Entering PRINTING_INTRO"))
+			.onEntry(actions::printingIntro)
+			.onExit(actions::printingIntroExit)
 			;
-		config.configure(PRINTING_READING)
+			config.configure(BEACHES)
 			.substateOf(PRINTING)
-			.onEntry(() -> System.out.println("Entering PRINTING_READING"))
+			.permit(ADVANCE,  BANDY)
+			.onEntry(() -> System.out.println("Entering BEACHES"))
+			.onEntry(actions::beaches)
+			.onExit(actions::beachesExit)
 			;
 		config.configure(BANDY)
 			.substateOf(PRINTING)
+			.permit(ADVANCE,  ESTRALADA)
 			.onEntry(() -> System.out.println("Entering BANDY"))
-			;
-		config.configure(BEACHES)
-			.substateOf(PRINTING)
-			.onEntry(() -> System.out.println("Entering BEACHES"))
+			.onEntry(actions::bandy)
+			.onExit(actions::bandyExit)
 			;
 		config.configure(ESTRALADA)
 			.substateOf(PRINTING)
-			.onEntry(() -> System.out.println("ESTRALADA"))
+			.permit(ADVANCE,  CLOSING)
+			.onEntry(() -> System.out.println("Entering ESTRALADA"))
+			.onEntry(actions::estalada)
+			.onExit(actions::estraladaExit)
 			;
 		
 		/* Ezzie's reading is ending */
 		
 		config.configure(CLOSING)
 			.substateOf(RUNNING)
+			.permit(ADVANCE, RESET_BOOTH)
 			.onEntry(() -> System.out.println("Entering Superstate CLOSING"))
+			.onEntry(actions::closing)
+			.onExit(actions::closingExit)
+			;
+		
+		/* Clear out for the next reading */
+		
+		config.configure(RESET_BOOTH)
+			.substateOf(RUNNING)
+			.permit(ADVANCE,  ATTRACTING)
+			.onEntry(() -> System.out.println("Entering Superstate RESET_BOOTH"))
+			.onEntry(actions::resetBooth)
+			.onExit(actions::resetBoothExit)	
 			;
 		
 		/* Some twat has put cards in the wrong place at the wrong time */

@@ -15,6 +15,12 @@ public class SoundLibrary extends HashMap<String, Media> {
 	private static final long serialVersionUID = 5555776105538766715L;
 
 	{
+		this.put("L01", new Media(SoundLibrary.class.getResource("L01.mp3").toString()));
+		this.put("L02", new Media(SoundLibrary.class.getResource("L02.mp3").toString()));
+		this.put("L03", new Media(SoundLibrary.class.getResource("L03.mp3").toString()));
+		this.put("L04", new Media(SoundLibrary.class.getResource("L04.mp3").toString()));
+		this.put("L05", new Media(SoundLibrary.class.getResource("L05.mp3").toString()));
+		this.put("L06", new Media(SoundLibrary.class.getResource("L06.mp3").toString()));
 		this.put("A01", new Media(SoundLibrary.class.getResource("A01.mp3").toString()));
 		this.put("A02", new Media(SoundLibrary.class.getResource("A02.mp3").toString()));
 		this.put("A03", new Media(SoundLibrary.class.getResource("A03.mp3").toString()));

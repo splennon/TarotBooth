@@ -18,10 +18,6 @@
     -fx-background-image: url("images/quinn.png");
     -fx-background-repeat: no-repeat;
 }
-.estraladaAd {
-    -fx-background-image: url("images/curtains.png");
-    -fx-background-repeat: no-repeat;
-}
 .reading {
     -fx-background-image: url("images/ezzie-reading.png");
     -fx-background-repeat: no-repeat;
@@ -36,5 +32,9 @@
 }
 .bandy {
     -fx-background-image: url("images/bandy.png");
+    -fx-background-repeat: no-repeat;
+}
+.estralada {
+    -fx-background-image: url("images/estralada.png");
     -fx-background-repeat: no-repeat;
 }

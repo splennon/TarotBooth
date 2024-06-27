@@ -78,6 +78,7 @@ public class EzzieMachineActions {
 	private MediaChain ominousMusic;
 	private MediaPlayer carnivalMusic;
 	private Timer curiousTimeoutTimer;
+	private Timer vacateTimeoutTimer;
 	 
 
 	public void initialize() throws IOException {
@@ -152,6 +153,7 @@ public class EzzieMachineActions {
 	}
 
 	public void idle() {
+		controller.curtainskMode();
 		carousel.setFast(false);
 		carousel.add(sounds.getPlayerFor("A01"));
 		carousel.add(sounds.getPlayerFor("A02"));
@@ -167,6 +169,7 @@ public class EzzieMachineActions {
 	}
 
 	public void curious() {
+		controller.curtainskMode();
 		carousel.setFast(true);
 		carousel.setNextIndex(0); /* MmeZ's curious announcement will be the same every time */
 		carousel.add(sounds.getPlayerFor("E01"));
@@ -235,8 +238,8 @@ public class EzzieMachineActions {
 	}
 	
 	public void requesting() {
-		controller.readingSetup(null, null, null);
 		controller.drawingMode();
+		controller.readingSetup(null, null, null);
 	}
 	
 	public void requestingPast() {
@@ -327,7 +330,6 @@ public class EzzieMachineActions {
 	}
 	
 	public void reading() {
-		controller.readingMode();
 	}
 	
 	public void readingIntro() {
@@ -350,6 +352,7 @@ public class EzzieMachineActions {
 	}
 	
 	public void readingPast() {
+		controller.readingMode();
 		
 		Optional<Card> card = gameModel.getCardInPosition(Position.PAST);
 		if (card.isPresent()) {
@@ -394,7 +397,6 @@ public class EzzieMachineActions {
 			sceneChain = new MediaChain(sceneSound);
 			sceneChain.wrap(sounds.getPlayerFor("R11"));
 			sceneChain.getHead().play();
-			
 			controller.meaningSetup(imageLibrary.getImageForCard(card.get().cardId()), card.get().futureText());
 		}	
 	}
@@ -412,26 +414,90 @@ public class EzzieMachineActions {
 	public void readingCloseExit() {
 		sceneChain.stopAll();
 	}
-	
-	/* OLD */
-	
-	public void fixPlacement() {
-		System.out.println("fix placement");
+		
+	public void printingIntro() {
+		controller.ezzieMode();
+		val sceneSound = sounds.getPlayerFor("L01");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
 	}
-
-	public void resetBooth() {
-		System.out.println("reset booth");
+	
+	public void printingIntroExit() {
+		sceneChain.stopAll();		
 	}
-
-	public void closing() {
-		System.out.println("closing");
+	
+	public void printingReading() {
 		controller.ezzieMode();
 		val sceneSound = sounds.getPlayerFor("R13");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
-
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
+	}
+	
+	public void printingReadingExit() {
+		sceneChain.stopAll();	
+	}
+	
+	public void beaches() {
+		controller.beachesMode();
+		val sceneSound = sounds.getPlayerFor("L02");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
+	}
+	
+	public void beachesExit() {
+		sceneChain.stopAll();		
+	}
+	
+	public void bandy() {
+		controller.bandyMode();
+		val sceneSound = sounds.getPlayerFor("L03");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
+	}
+	
+	public void bandyExit() {
+		sceneChain.stopAll();		
 	}
 
-	public void fixPrinter() {
-		System.out.println("fix printer");
+	
+	public void estalada() {
+		controller.estraladaMode();
+		val sceneSound = sounds.getPlayerFor("L04");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
+	}
+	
+	public void estraladaExit() {
+		sceneChain.stopAll();		
+	}
+	
+	public void closing() {
+		controller.ezzieMode();	
+		val sceneSound = sounds.getPlayerFor("L06");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		sceneChain = new MediaChain(sceneSound);
+		(sceneChain = sceneChain.wrap(sounds.getPlayerFor("L05"))).getHead().play();
+	}
+	
+	public void resetBooth() {
+		controller.vacateMode();
+		fadeVolumeTo(0.0);
+		(sceneChain = new MediaChain(sounds.getPlayerFor("X02"))).getHead().play();
+		
+		vacateTimeoutTimer = new Timer("Vacate Timeout");
+		
+		vacateTimeoutTimer.schedule(new TimerTask() {
+			public void run() {
+				stateMachine.fire(ADVANCE);
+			}
+		}, 60000);
+	}
+	
+	public void resetBoothExit() {
+		sceneChain.stopAll();	
+	}
+	
+	public void closingExit() {
+		sceneChain.stopAll();	
 	}
 }

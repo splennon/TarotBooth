@@ -26,7 +26,10 @@ public class BoothController implements Initializable {
 		
     @FXML
     private AnchorPane beaches;
-   
+
+    @FXML
+    private AnchorPane bandy;
+    
     @FXML
     private AnchorPane curtains;
 
@@ -47,6 +50,9 @@ public class BoothController implements Initializable {
     
     @FXML
     private AnchorPane quinn;
+    
+    @FXML
+    private AnchorPane vacate;
 
     @FXML
     private Label meaningText;
@@ -72,7 +78,7 @@ public class BoothController implements Initializable {
      */
     @Override
     public void initialize(URL url, ResourceBundle rb) {
-    	allPanes = new Pane[] {beaches, curtains, benny, drawing, ezzie, reading, estralada, quinn};
+    	allPanes = new Pane[] {beaches, bandy, curtains, benny, drawing, ezzie, reading, estralada, vacate, quinn};
     	
     	/* TODO Try using this method to advance the state machine to curtains instead of delay */
     	
@@ -100,6 +106,9 @@ public class BoothController implements Initializable {
     public void estraladaMode() {
     	fadeTo(estralada);
     }
+    public void bandyMode() {
+    	fadeTo(bandy);
+    }
     public void beachesMode() {
     	fadeTo(beaches);
     }
@@ -126,25 +135,31 @@ public class BoothController implements Initializable {
 		fadeTo(benny);
 	}
 	
+	public void vacateMode() {
+		fadeTo(vacate);
+	}
+	
     private void fadeTo(Pane pane) {
     	
 		FadeTransition fadeIn = new FadeTransition(Duration.millis(900), pane);
 		fadeIn.setFromValue(0);
 		fadeIn.setToValue(1);
 		
-    	if (current == null) {
-    		fadeIn.play();
-			current = pane;
-    	} else {
-    		FadeTransition fadeOut = new FadeTransition(Duration.millis(900), current);
-    		fadeOut.setFromValue(1);
-    		fadeOut.setToValue(0);
-    		fadeOut.setOnFinished(e -> {
-    			fadeIn.play();
-    			current = pane;
-    		});
-    		fadeOut.play();
-    	}
+		if (pane != current) {
+	    	if (current == null) {
+	    		fadeIn.play();
+				current = pane;
+	    	} else {
+	    		FadeTransition fadeOut = new FadeTransition(Duration.millis(900), current);
+	    		fadeOut.setFromValue(1);
+	    		fadeOut.setToValue(0);
+	    		fadeOut.setOnFinished(e -> {
+	    			fadeIn.play();
+	    			current = pane;
+	    		});
+	    		fadeOut.play();
+	    	}
+		}
     	
     	if (allPanes != null ) {
 	    	for (Pane p : allPanes) {

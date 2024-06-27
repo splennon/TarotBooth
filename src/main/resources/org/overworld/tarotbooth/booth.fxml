@@ -14,11 +14,13 @@
 <StackPane minHeight="1080" minWidth="1920" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="org.overworld.tarotbooth.BoothController">
     <children>
       <AnchorPane opacity="1.0" styleClass="blackBackground" stylesheets="@global.css" />
+      <AnchorPane fx:id="vacate" opacity="0.0" styleClass="blackBackground" stylesheets="@global.css" />
       <AnchorPane fx:id="curtains" opacity="0.0" styleClass="curtainsBackground" stylesheets="@global.css" />
       <AnchorPane fx:id="ezzie" opacity="0.0" styleClass="ezzieBig" stylesheets="@global.css" />
       <AnchorPane fx:id="benny" opacity="0.0" styleClass="bennyBig" stylesheets="@global.css" />
-      <AnchorPane fx:id="estralada" opacity="0.0" styleClass="estraladaAd" stylesheets="@global.css" />
+      <AnchorPane fx:id="estralada" opacity="0.0" styleClass="estralada" stylesheets="@global.css" />
       <AnchorPane fx:id="beaches" opacity="0.0" styleClass="beaches" stylesheets="@global.css" />
+      <AnchorPane fx:id="bandy" opacity="0.0" styleClass="bandy" stylesheets="@global.css" />    
       <AnchorPane fx:id="quinn" opacity="0.0" styleClass="quinnBig" stylesheets="@global.css" />
       <AnchorPane fx:id="drawing" opacity="0.0" styleClass="drawing" stylesheets="@global.css">
          <children>
