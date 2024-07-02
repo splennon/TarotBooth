@@ -8,6 +8,7 @@ import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import org.overworld.tarotbooth.EzzieMachine.Trigger;
 import org.overworld.tarotbooth.images.ImageLibrary;
 import org.overworld.tarotbooth.model.Deck.Card;
 import org.overworld.tarotbooth.model.GameModel;
@@ -73,7 +74,7 @@ public class EzzieMachineActions {
 	private Stage mainStage, debugStage;
 	private Scene debugScene, mainScene;
 	
-	private Timer timer = new Timer("Autoadvance");
+	private Timer timer;
 	private MediaChain sceneChain;
 	private MediaChain ominousMusic;
 	private MediaPlayer carnivalMusic;
@@ -120,7 +121,8 @@ public class EzzieMachineActions {
 		 * this so a delay is used instead, you may need to increase it for smaller
 		 * hardware
 		 */
-
+		
+		timer = new Timer("Autoadvance");
 		timer.schedule(new TimerTask() {
 			public void run() {
 				stateMachine.fire(ADVANCE);

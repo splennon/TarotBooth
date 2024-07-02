@@ -86,7 +86,7 @@ public class DebugController implements Initializable {
     	advanceButton.setOnAction(e -> stateMachine.fire(Trigger.ADVANCE));
     	printerButton.setOnAction(e -> stateMachine.fire(Trigger.PRINTER_ERROR));
     	timeoutButton.setOnAction(e -> stateMachine.fire(Trigger.TIMEOUT));
-    	placementButton.setOnAction(e -> stateMachine.fire(Trigger.BAD_PLACEMENT));
+    	placementButton.setOnAction(e -> {}); // TODO: Remove
     }
     
     private void past(MouseEvent e) {

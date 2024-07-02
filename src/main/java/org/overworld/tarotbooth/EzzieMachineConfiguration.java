@@ -11,7 +11,6 @@ import static org.overworld.tarotbooth.EzzieMachine.State.ESTRALADA;
 import static org.overworld.tarotbooth.EzzieMachine.State.FIX_FUTURE;
 import static org.overworld.tarotbooth.EzzieMachine.State.FIX_JOCKER;
 import static org.overworld.tarotbooth.EzzieMachine.State.FIX_PAST;
-import static org.overworld.tarotbooth.EzzieMachine.State.FIX_PLACEMENT;
 import static org.overworld.tarotbooth.EzzieMachine.State.FIX_PRESENT;
 import static org.overworld.tarotbooth.EzzieMachine.State.FIX_PRINTER;
 import static org.overworld.tarotbooth.EzzieMachine.State.HELLO;
@@ -39,11 +38,9 @@ import static org.overworld.tarotbooth.EzzieMachine.State.RESET_BOOTH;
 import static org.overworld.tarotbooth.EzzieMachine.State.RUNNING;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.ADVANCE;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.APPROACH_SENSOR;
-import static org.overworld.tarotbooth.EzzieMachine.Trigger.BAD_PLACEMENT;
-import static org.overworld.tarotbooth.EzzieMachine.Trigger.BAD_PLACEMENT_FUTURE;
-import static org.overworld.tarotbooth.EzzieMachine.Trigger.BAD_PLACEMENT_JOCKER;
-import static org.overworld.tarotbooth.EzzieMachine.Trigger.BAD_PLACEMENT_PAST;
-import static org.overworld.tarotbooth.EzzieMachine.Trigger.BAD_PLACEMENT_PREESNT;
+import static org.overworld.tarotbooth.EzzieMachine.Trigger.CORRUPT_DUPLICATE;
+import static org.overworld.tarotbooth.EzzieMachine.Trigger.CORRUPT_PAST;
+import static org.overworld.tarotbooth.EzzieMachine.Trigger.CORRUPT_PRESENT;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.FUTURE_READ;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.PAST_READ;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.PRESENCE_SENSOR;
@@ -83,11 +80,6 @@ public class EzzieMachineConfiguration {
 			.ignore(PRINTER_ERROR)
 			.ignore(TIMEOUT)
 			.ignore(ADVANCE)
-			.ignore(BAD_PLACEMENT_PAST)
-			.ignore(BAD_PLACEMENT_PREESNT)
-			.ignore(BAD_PLACEMENT_FUTURE)
-			.ignore(BAD_PLACEMENT)
-			.ignore(BAD_PLACEMENT_JOCKER)
 			;
 
 		/* Start the music, Ezzie is in session! */
@@ -181,6 +173,9 @@ public class EzzieMachineConfiguration {
 			.permit(PAST_READ, RECEIVING_PAST)
 			.permit(PRESENT_READ, FIX_PAST)
 			.permit(FUTURE_READ, FIX_PAST)
+			.permit(CORRUPT_PAST, FIX_PAST)
+			.permit(CORRUPT_PRESENT, FIX_PRESENT)
+			.permit(CORRUPT_DUPLICATE, FIX_PAST)
 			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_PAST"))
 			.onEntry(actions::requestingPast)
@@ -188,6 +183,9 @@ public class EzzieMachineConfiguration {
 			;
 		config.configure(RECEIVING_PAST)
 			.substateOf(REQUESTING)
+			.permit(CORRUPT_PAST, FIX_PAST)
+			.permit(CORRUPT_PRESENT, FIX_PRESENT)
+			.permit(CORRUPT_DUPLICATE, FIX_PAST)
 			.permit(ADVANCE, REQUESTING_PRESENT)
 			.onEntry(() -> System.out.println("Entering RECEIVING_PAST"))
 			.onEntry(actions::receivingPast)
@@ -198,6 +196,9 @@ public class EzzieMachineConfiguration {
 			.permit(PAST_READ, FIX_PRESENT)
 			.permit(PRESENT_READ, RECEIVING_PRESENT)
 			.permit(FUTURE_READ, FIX_PRESENT)
+			.permit(CORRUPT_PAST, FIX_PAST)
+			.permit(CORRUPT_PRESENT, FIX_PRESENT)
+			.permit(CORRUPT_DUPLICATE, FIX_PAST)
 			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_PRESENT"))
 			.onEntry(actions::requestingPresent)
@@ -205,6 +206,9 @@ public class EzzieMachineConfiguration {
 			;
 		config.configure(RECEIVING_PRESENT)
 			.substateOf(REQUESTING)
+			.permit(CORRUPT_PAST, FIX_PAST)
+			.permit(CORRUPT_PRESENT, FIX_PRESENT)
+			.permit(CORRUPT_DUPLICATE, FIX_PAST)
 			.permit(ADVANCE, REQUESTING_FUTURE)
 			.onEntry(() -> System.out.println("Entering RECEIVING_PRESENT"))
 			.onEntry(actions::receivingPresent)
@@ -215,6 +219,9 @@ public class EzzieMachineConfiguration {
 			.permit(PAST_READ, FIX_FUTURE)
 			.permit(PRESENT_READ, FIX_FUTURE)
 			.permit(FUTURE_READ, RECEIVING_FUTURE)
+			.permit(CORRUPT_PAST, FIX_PAST)
+			.permit(CORRUPT_PRESENT, FIX_PRESENT)
+			.permit(CORRUPT_DUPLICATE, FIX_PAST)
 			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_FUTURE"))
 			.onEntry(actions::requestingFuture)
@@ -222,6 +229,9 @@ public class EzzieMachineConfiguration {
 			;
 		config.configure(RECEIVING_FUTURE)
 			.substateOf(REQUESTING)
+			.permit(CORRUPT_PAST, FIX_PAST)
+			.permit(CORRUPT_PRESENT, FIX_PRESENT)
+			.permit(CORRUPT_DUPLICATE, FIX_PAST)
 			.permit(ADVANCE, READING)
 			.onEntry(() -> System.out.println("Entering RECEIVING_FUTURE"))
 			.onEntry(actions::receivingFuture)
@@ -340,28 +350,28 @@ public class EzzieMachineConfiguration {
 		/* Some twat has put cards in the wrong place at the wrong time */
 		
 		config.configure(FIX_PAST)
-			.substateOf(FIX_PLACEMENT)
+			.substateOf(RUNNING)
 			.onEntry(() -> System.out.println("Entering FIX_PAST"))
 			.permit(ADVANCE, REQUESTING_PAST)
 			.onEntry(actions::fixSinglePlacement)
 			.onExit(actions::fixSinglePlacementExit)
 			;
 		config.configure(FIX_PRESENT)
-			.substateOf(FIX_PLACEMENT)
+			.substateOf(RUNNING)
 			.onEntry(() -> System.out.println("Entering FIX_PRESENT"))
 			.permit(ADVANCE, REQUESTING_PRESENT)
 			.onEntry(actions::fixSinglePlacement)
 			.onExit(actions::fixSinglePlacementExit)
 			;
 		config.configure(FIX_FUTURE)
-			.substateOf(FIX_PLACEMENT)
+			.substateOf(RUNNING)
 			.onEntry(() -> System.out.println("Entering FIX_FUTURE"))
 			.permit(ADVANCE, REQUESTING_FUTURE)
 			.onEntry(actions::fixSinglePlacement)
 			.onExit(actions::fixSinglePlacementExit)
 			;
 		config.configure(FIX_JOCKER)
-			.substateOf(FIX_PLACEMENT)
+			.substateOf(RUNNING)
 			.onEntry(() -> System.out.println("Entering FIX_JOCKER"))
 			;
 		
