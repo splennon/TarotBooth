@@ -179,6 +179,8 @@ public class EzzieMachineConfiguration {
 		config.configure(REQUESTING_PAST)
 			.substateOf(REQUESTING)
 			.permit(PAST_READ, RECEIVING_PAST)
+			.permit(PRESENT_READ, FIX_PAST)
+			.permit(FUTURE_READ, FIX_PAST)
 			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_PAST"))
 			.onEntry(actions::requestingPast)
@@ -193,7 +195,9 @@ public class EzzieMachineConfiguration {
 			;
 		config.configure(REQUESTING_PRESENT)
 			.substateOf(REQUESTING)
+			.permit(PAST_READ, FIX_PRESENT)
 			.permit(PRESENT_READ, RECEIVING_PRESENT)
+			.permit(FUTURE_READ, FIX_PRESENT)
 			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_PRESENT"))
 			.onEntry(actions::requestingPresent)
@@ -208,6 +212,8 @@ public class EzzieMachineConfiguration {
 			;
 		config.configure(REQUESTING_FUTURE)
 			.substateOf(REQUESTING)
+			.permit(PAST_READ, FIX_FUTURE)
+			.permit(PRESENT_READ, FIX_FUTURE)
 			.permit(FUTURE_READ, RECEIVING_FUTURE)
 			.ignore(ADVANCE)
 			.onEntry(() -> System.out.println("Entering REQUESTING_FUTURE"))
@@ -333,21 +339,26 @@ public class EzzieMachineConfiguration {
 		
 		/* Some twat has put cards in the wrong place at the wrong time */
 		
-		config.configure(FIX_PLACEMENT)
-			.substateOf(RUNNING)
-			.onEntry(() -> System.out.println("Entering Superstate FIX_PLACEMENT"))
-			;
 		config.configure(FIX_PAST)
 			.substateOf(FIX_PLACEMENT)
 			.onEntry(() -> System.out.println("Entering FIX_PAST"))
+			.permit(ADVANCE, REQUESTING_PAST)
+			.onEntry(actions::fixSinglePlacement)
+			.onExit(actions::fixSinglePlacementExit)
 			;
 		config.configure(FIX_PRESENT)
 			.substateOf(FIX_PLACEMENT)
 			.onEntry(() -> System.out.println("Entering FIX_PRESENT"))
+			.permit(ADVANCE, REQUESTING_PRESENT)
+			.onEntry(actions::fixSinglePlacement)
+			.onExit(actions::fixSinglePlacementExit)
 			;
 		config.configure(FIX_FUTURE)
 			.substateOf(FIX_PLACEMENT)
 			.onEntry(() -> System.out.println("Entering FIX_FUTURE"))
+			.permit(ADVANCE, REQUESTING_FUTURE)
+			.onEntry(actions::fixSinglePlacement)
+			.onExit(actions::fixSinglePlacementExit)
 			;
 		config.configure(FIX_JOCKER)
 			.substateOf(FIX_PLACEMENT)

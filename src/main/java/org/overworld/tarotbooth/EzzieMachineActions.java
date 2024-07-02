@@ -479,6 +479,10 @@ public class EzzieMachineActions {
 		(sceneChain = sceneChain.wrap(sounds.getPlayerFor("L05"))).getHead().play();
 	}
 	
+	public void closingExit() {
+		sceneChain.stopAll();	
+	}
+	
 	public void resetBooth() {
 		controller.vacateMode();
 		fadeVolumeTo(0.0);
@@ -497,7 +501,13 @@ public class EzzieMachineActions {
 		sceneChain.stopAll();	
 	}
 	
-	public void closingExit() {
-		sceneChain.stopAll();	
+	public void fixSinglePlacement() {
+		val sceneSound = sounds.getPlayerFor("X01");
+		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
+		(sceneChain = new MediaChain(sceneSound)).getHead().play();
+	}
+	
+	public void fixSinglePlacementExit() {
+		sceneChain.stopAll();
 	}
 }
