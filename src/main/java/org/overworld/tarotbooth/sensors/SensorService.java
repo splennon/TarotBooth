@@ -31,7 +31,7 @@ public class SensorService implements InitializingBean{
 	
 	private DigitalInput approach, presence;
 	
-	@Scheduled(fixedRate = 1000)
+	@Scheduled(fixedRate = 2000)
 	public void sense() {
 		if (presence.state() == DigitalState.HIGH) {
 			timeout.poke();

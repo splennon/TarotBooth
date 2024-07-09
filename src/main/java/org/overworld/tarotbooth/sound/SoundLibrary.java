@@ -14,6 +14,8 @@ public class SoundLibrary extends HashMap<String, Media> {
 
 	private static final long serialVersionUID = 5555776105538766715L;
 
+	private MediaPlayer fallback = new MediaPlayer(new Media(SoundLibrary.class.getResource("I09.mp3").toString()));
+	
 	{
 		this.put("L01", new Media(SoundLibrary.class.getResource("L01.mp3").toString()));
 		this.put("L02", new Media(SoundLibrary.class.getResource("L02.mp3").toString()));
@@ -375,7 +377,12 @@ public class SoundLibrary extends HashMap<String, Media> {
 	}
 	
 	public MediaPlayer getPlayerFor(String cardId) {
-		return new MediaPlayer(this.get(cardId));
+		try {
+			return new MediaPlayer(this.get(cardId));
+		} catch (Exception e) {
+			System.out.println("Error creating media, resources? Providing fallback.");
+			return fallback;
+		}
 	}
 	
 	public MediaPlayer getPlayerFor(Card card, Position position) {

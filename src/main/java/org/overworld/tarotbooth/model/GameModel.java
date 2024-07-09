@@ -18,16 +18,34 @@ public class GameModel {
 	@Getter
 	private Optional<Deck.Card> future = Optional.empty();
 	
+	private boolean locked;
+	
+	public void lock() {
+		this.locked = true;
+	}
+	
 	public void setPast(Deck.Card past) {
-		this.past = Optional.ofNullable(past);
+			
+		if (locked)
+			System.out.println("Trying to modify the game model in locked state");
+		else
+			this.past = Optional.ofNullable(past);
 	}
 	
 	public void setPresent(Deck.Card present) {
-		this.present = Optional.ofNullable(present);
+		
+		if (locked)
+			System.out.println("Trying to modify the game model in locked state");
+		else
+			this.present = Optional.ofNullable(present);
 	}
 	
 	public void setFuture(Deck.Card future) {
-		this.future = Optional.ofNullable(future);
+		
+		if (locked)
+			System.out.println("Trying to modify the game model in locked state");
+		else
+			this.future = Optional.ofNullable(future);
 	}
 	
 	public Optional<Deck.Card> getCardInPosition(Position position) {
@@ -63,17 +81,21 @@ public class GameModel {
 		past = Optional.empty();
 		present = Optional.empty();
 		future = Optional.empty();
+		locked = false;
 	}
 	
 	public void clearPast() {
-		past = Optional.empty();
+		if (!locked)
+			past = Optional.empty();
 	}
 	
 	public void clearPresent() {
-		present = Optional.empty();
+		if (!locked)
+			present = Optional.empty();
 	}
 	
 	public void clearFuture() {
-		future = Optional.empty();
+		if (!locked)
+			future = Optional.empty();
 	}
 }

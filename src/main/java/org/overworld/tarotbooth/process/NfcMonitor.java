@@ -20,49 +20,44 @@ public class NfcMonitor {
 	@Getter
 	private String lastCard;
 	
+	private String sensorName;
+	
 	private Pattern pattern = Pattern.compile("(\\d*)\\s+([\\d\\w]+)");
 	
-	public void attach(String processName, String env) throws IOException {
+	public void attach(String sensorName, String processName, String envKey, String env) throws IOException {
 		
-		ProcessBuilder builder = new ProcessBuilder(processName);
-		builder.environment().put("extra", env);
-
+		this.sensorName = sensorName;
+		
+		ProcessBuilder builder = new ProcessBuilder()
+				.command(processName)
+				.redirectErrorStream(true);
+		builder.environment().put(envKey, env);
 		Process process = builder.start();
+		
+		System.out.println("Started nfc reader for " + sensorName + " with PID " + process.pid());
 		InputStream stdout = process.getInputStream();
+		process.getOutputStream().close();
 		reader = new BufferedReader (new InputStreamReader(stdout));
 	}
 	
 	public void poll() throws IOException {
 		
-		while (reader.ready() && (lastLine = reader.readLine()) != null) {}
+		String read;
+		while (reader.ready() && (read = reader.readLine()) != null) {
+				 lastLine = read;
+		}
 		
 		if (lastLine == null)
 			return;
+		
+		System.out.println("Read from NFC " + sensorName + " " + lastLine);
 		
 		Matcher m = pattern.matcher(lastLine);
 		if (m.matches()) {
 			lastInstant = Instant.ofEpochSecond(Long.parseLong(m.group(1)));
 			lastCard = m.group(2);
 		} else {
-			System.err.println("Matcher does not match line " + lastLine);
-		}
-	}
-	
-	public static void main(String...a) throws IOException {
-		
-		NfcMonitor mon = new NfcMonitor();
-		mon.attach("/Users/stephen/workspaces/tarot/TarotBooth/barf.sh", "hiImExtra");
-		
-		while (true) {
-			try {
-				Thread.sleep(5000);
-			} catch (InterruptedException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
-			mon.poll();
-			System.out.println("At instant " + Instant.now());
-			System.out.println("" + mon.lastInstant + " " + mon.lastCard);
+			System.err.println("Sensor: " + sensorName + " Matcher does not match line " + lastLine);
 		}
 	}
 }

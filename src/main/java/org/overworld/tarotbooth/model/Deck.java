@@ -108,12 +108,6 @@ public class Deck extends HashMap<String, Deck.Card> {
 		this.put("W14", new Card("W14", "W14.png", "1d029a6a031080", "King of Wands", "W14.mp3", "W14P.mp3", "W14R.mp3", "W14F.mp3", "You have enjoyed motivation, maturity and strength. You may have met a strong man.", "You are enjoying motivation, maturity and strength. You may know a strong man who helps you at this time.", "You will enjoy a period of motivation, maturity and strength. You may meet a strong man who assists you.", Positivity.POSITIVE));
 		/* @formatter:on */
 		
-		this.values().parallelStream().forEach(c -> {
-			this.replace(c.cardId, new Card(c.cardId, c.filename, Math.random() + "", c.name(), null, null, null, null, null, null, null, null));
-		}); //TODO Remove
-		
-		this.replace("C01", new Card("C01", "C01.png", "12345678901234567890present", "Ace of Cups", null, null, null, null, null, null, null, null));
-		
 		nfcIdToCardId = this.values().stream().collect(Collectors.toMap(Card::rfcId, Card::cardId));
 	}
 }

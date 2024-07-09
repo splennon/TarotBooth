@@ -24,6 +24,9 @@ public class NfcService implements InitializingBean {
 	@Value("${futureNfcProcess}")
 	private String futureNfcProcess;
 	
+	@Value("${envKey}")
+	private String envKey;
+	
 	@Value("${pastNfcEnv}")
 	private String pastNfcEnv;
 	@Value("${presentNfcEnv}")
@@ -49,16 +52,16 @@ public class NfcService implements InitializingBean {
 	public void afterPropertiesSet() throws IOException {
 		
 		pastMonitor = new NfcMonitor();
-		pastMonitor.attach(pastNfcProcess, pastNfcEnv);
+		pastMonitor.attach("PAST", pastNfcProcess, envKey, pastNfcEnv);
 	
 		presentMonitor = new NfcMonitor();
-		presentMonitor.attach(presentNfcProcess, presentNfcEnv);
+		presentMonitor.attach("PRESENT", presentNfcProcess, envKey, presentNfcEnv);
 		
 		futureMonitor = new NfcMonitor();
-		futureMonitor.attach(futureNfcProcess, futureNfcEnv);
+		futureMonitor.attach("FUTURE", futureNfcProcess, envKey, futureNfcEnv);
 	}
 	
-	@Scheduled(initialDelay=2000, fixedRate=2000)
+	@Scheduled(initialDelay=10000, fixedRate=3000)
 	public void pollCards() throws IOException {
 		
 		pastMonitor.poll();

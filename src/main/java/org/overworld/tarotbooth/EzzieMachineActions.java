@@ -3,6 +3,7 @@ package org.overworld.tarotbooth;
 import static org.overworld.tarotbooth.EzzieMachine.Trigger.ADVANCE;
 
 import java.io.IOException;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.Random;
 import java.util.Timer;
@@ -13,6 +14,7 @@ import org.overworld.tarotbooth.images.ImageLibrary;
 import org.overworld.tarotbooth.model.Deck.Card;
 import org.overworld.tarotbooth.model.GameModel;
 import org.overworld.tarotbooth.model.Position;
+import org.overworld.tarotbooth.printer.PrintService;
 import org.overworld.tarotbooth.sound.MediaChain;
 import org.overworld.tarotbooth.sound.SoundCarousel;
 import org.overworld.tarotbooth.sound.SoundLibrary;
@@ -37,6 +39,9 @@ public class EzzieMachineActions {
 
 	@Autowired
 	private ImageLibrary imageLibrary;
+	
+	@Autowired
+	private PrintService printer;
 	
 	private TimeoutService timeoutService;
 	@Autowired
@@ -106,6 +111,7 @@ public class EzzieMachineActions {
 
 		/* Wrapping in a timer to trick spring into ignoring the circularity */
 
+		timer = new Timer("Autoadvance");
 		timer.schedule(new TimerTask() {
 			public void run() {
 				stateMachine.fire(ADVANCE);
@@ -242,10 +248,15 @@ public class EzzieMachineActions {
 	public void requesting() {
 		controller.drawingMode();
 		controller.readingSetup(null, null, null);
+		gameModel.clear();
 	}
 	
 	public void requestingPast() {
-		controller.readingSetup(imageLibrary.getImage("placeCard.png"), null, null);
+		try {
+			controller.readingSetup(imageLibrary.getImage("placeCard.png"), null, null);
+		} catch (NoSuchElementException e) {
+			/* leave this to the game model */
+		}
 		(sceneChain = new MediaChain(sounds.getPlayerFor("R06"))).getHead().play();
 	}
 	
@@ -255,7 +266,11 @@ public class EzzieMachineActions {
 
 	public void receivingPast() {
 		
-		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), null, null);
+		try {
+			controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), null, null);
+		} catch(NoSuchElementException e) {
+			/* leave this to the game model */
+		}
 		
 		val sceneSound = sounds.getPlayerFor("I0" + random.nextInt(1, 8));
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
@@ -274,7 +289,11 @@ public class EzzieMachineActions {
 	}
 		
 	public void requestingPresent() {
-		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImage("placeCard.png"), null);
+		try {
+			controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImage("placeCard.png"), null);
+		} catch (NoSuchElementException e) {
+			/* leave this to the game model */
+		}
 		(sceneChain = new MediaChain(sounds.getPlayerFor("R15"))).getHead().play();
 	}
 	
@@ -284,7 +303,11 @@ public class EzzieMachineActions {
 
 	public void receivingPresent() {
 		
-		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), null);
+		try {
+			controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), null);
+		} catch (NoSuchElementException e) {
+			/* leave this to the game model */
+		}
 		
 		val sceneSound = sounds.getPlayerFor("I0" + random.nextInt(1, 8));
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
@@ -303,7 +326,11 @@ public class EzzieMachineActions {
 	}
 
 	public void requestingFuture() {
-		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), imageLibrary.getImage("placeCard.png"));
+		try {
+			controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), imageLibrary.getImage("placeCard.png"));
+		} catch (NoSuchElementException e) {
+			/* leave this to the game model */
+		}
 		(sceneChain = new MediaChain(sounds.getPlayerFor("R16"))).getHead().play();
 	}
 	
@@ -313,7 +340,11 @@ public class EzzieMachineActions {
 
 	public void receivingFuture() {
 		
-		controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), imageLibrary.getImageForCard(gameModel.getFuture().get().cardId()));
+		try {
+			controller.readingSetup(imageLibrary.getImageForCard(gameModel.getPast().get().cardId()), imageLibrary.getImageForCard(gameModel.getPresent().get().cardId()), imageLibrary.getImageForCard(gameModel.getFuture().get().cardId()));
+		} 		catch(NoSuchElementException e) {
+			/* leave this to the game model */
+		}
 		
 		val sceneSound = sounds.getPlayerFor("I0" + random.nextInt(1, 8));
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
@@ -329,6 +360,7 @@ public class EzzieMachineActions {
 	
 	public void receivingFutureExit() {
 		sceneChain.stopAll();
+		gameModel.lock();
 	}
 	
 	public void reading() {
@@ -433,6 +465,7 @@ public class EzzieMachineActions {
 		val sceneSound = sounds.getPlayerFor("R13");
 		sceneSound.setOnEndOfMedia(() -> stateMachine.fire(ADVANCE));
 		(sceneChain = new MediaChain(sceneSound)).getHead().play();
+		printer.printRun();
 	}
 	
 	public void printingReadingExit() {

@@ -80,6 +80,9 @@ public class EzzieMachineConfiguration {
 			.ignore(PRINTER_ERROR)
 			.ignore(TIMEOUT)
 			.ignore(ADVANCE)
+			.ignore(CORRUPT_PAST)
+			.ignore(CORRUPT_PRESENT)
+			.ignore(CORRUPT_DUPLICATE)
 			;
 
 		/* Start the music, Ezzie is in session! */
