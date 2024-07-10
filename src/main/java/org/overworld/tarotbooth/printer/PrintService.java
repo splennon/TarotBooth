@@ -41,12 +41,20 @@ public class PrintService implements InitializingBean {
 	@Value("${printCardQrPrefix}")
 	private String printCardQrPrefix;
 	
+	@Value("${printerDisable}")
+	private boolean printerDisable;
+	
 	@Autowired
 	private GameModel gameModel;
 	
 	private OutputStream stream;
 
 	public void printRun(){
+		
+		if (printerDisable) {
+			System.out.println("Skipping print per application properties");
+			return;
+		}
 		
 		try {
 			

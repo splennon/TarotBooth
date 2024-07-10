@@ -19,6 +19,7 @@ import org.overworld.tarotbooth.sound.MediaChain;
 import org.overworld.tarotbooth.sound.SoundCarousel;
 import org.overworld.tarotbooth.sound.SoundLibrary;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
@@ -42,6 +43,9 @@ public class EzzieMachineActions {
 	
 	@Autowired
 	private PrintService printer;
+	
+	@Value("${singleRun}")
+	private boolean singleRun;
 	
 	private TimeoutService timeoutService;
 	@Autowired
@@ -525,11 +529,19 @@ public class EzzieMachineActions {
 		
 		vacateTimeoutTimer = new Timer("Vacate Timeout");
 		
-		vacateTimeoutTimer.schedule(new TimerTask() {
-			public void run() {
-				stateMachine.fire(ADVANCE);
-			}
-		}, 60000);
+		if (singleRun) {
+			vacateTimeoutTimer.schedule(new TimerTask() {
+				public void run() {
+					System.exit(0);
+				}
+			}, 20000);
+		} else {
+			vacateTimeoutTimer.schedule(new TimerTask() {
+				public void run() {
+					stateMachine.fire(ADVANCE);
+				}
+			}, 40000);
+		}
 	}
 	
 	public void resetBoothExit() {
