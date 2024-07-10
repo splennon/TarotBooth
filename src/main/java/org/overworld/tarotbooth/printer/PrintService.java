@@ -59,7 +59,7 @@ public class PrintService implements InitializingBean {
 				printCard("Your Past", past.name(), printCardRootDirectory + "/" + past.filename(), past.pastText());
 				printCard("Your Present", present.name(), printCardRootDirectory  + "/"+ present.filename(), present.presentText());
 				printCard("Your Future", future.name(), printCardRootDirectory + "/" + future.filename(), future.futureText());
-				printVouchers(printCardQrPrefix + past.cardId() + present.cardId() + future.cardId());
+				printVouchers(printCardQrPrefix + "p=" + past.cardId() + "&r=" + present.cardId() + "&f=" + future.cardId());
 			} catch (NoSuchElementException e) {
 				System.out.println("Missing a card, so skipping reading print");
 			}
