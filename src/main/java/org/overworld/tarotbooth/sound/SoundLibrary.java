@@ -378,16 +378,16 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("W14R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("W14R.mp3").toString())));
 	}
 	
-	public MediaPlayer getPlayerFor(String cardId) {
+	public MediaPlayer getPlayerFor(String id) {
 		
-		if (cache.containsKey(cardId)) {
-			MediaPlayer found = cache.get(cardId);
+		if (cache.containsKey(id)) {
+			MediaPlayer found = cache.get(id);
 			found.setOnEndOfMedia(null);
 			found.stop();
 			return found;
 		} else {
-			MediaPlayer created = this.get(cardId).get();
-			cache.put(cardId, created);
+			MediaPlayer created = this.get(id).get();
+			cache.put(id, created);
 			return created;
 		}
 	}
