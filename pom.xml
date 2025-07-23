@@ -1,6 +1,6 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="https://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>org.overworld.tarotbooth</groupId>
 	<artifactId>TarotBooth</artifactId>
@@ -17,7 +17,7 @@
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-		<javafx.version>22.0.1</javafx.version>
+		<javafx.version>23</javafx.version>
 		<pi4j.version>2.5.1</pi4j.version>
 		<javafx.maven.plugin.version>0.0.8</javafx.maven.plugin.version>
 		<!--		<maven.compiler.source>21</maven.compiler.source>-->

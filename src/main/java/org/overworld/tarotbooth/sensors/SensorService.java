@@ -15,14 +15,17 @@ import com.pi4j.io.gpio.digital.DigitalInput;
 import com.pi4j.io.gpio.digital.DigitalState;
 
 @Component
-public class SensorService implements InitializingBean{
+public class SensorService implements InitializingBean {
 	
 	@Value("${presencePin}")
 	private int presencePin;
 
 	@Value("${approachPin}")
 	private int approachPin;
-	
+
+	@Value("${sensorDisable}")
+	private boolean sensorDisable;
+
 	@Autowired
 	private TimeoutService timeout;
 	
@@ -31,8 +34,19 @@ public class SensorService implements InitializingBean{
 	
 	private DigitalInput approach, presence;
 	
+	private boolean warned = false;
+
 	@Scheduled(fixedRate = 2000)
 	public void sense() {
+
+		if (sensorDisable) {
+			if (!warned) {
+				System.err.println("Sensor bean is disabled, consider removing bean");
+				warned = true;
+			}
+			return;
+		}
+
 		if (presence.state() == DigitalState.HIGH) {
 			timeout.poke();
 			stateMachine.fire(Trigger.PRESENCE_SENSOR);
@@ -44,6 +58,11 @@ public class SensorService implements InitializingBean{
 
 	@Override
 	public void afterPropertiesSet() {
+
+		if (sensorDisable) {
+			return;
+		}
+
 		Context pi4j = Pi4J.newAutoContext();
 		approach = pi4j.digitalInput().create(approachPin);
 		presence = pi4j.digitalInput().create(presencePin);

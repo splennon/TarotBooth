@@ -20,6 +20,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import com.fazecast.jSerialComm.SerialPortInvalidPortException;
 import com.github.anastaciocintra.escpos.EscPos;
 import com.github.anastaciocintra.escpos.image.BitImageWrapper;
 import com.github.anastaciocintra.escpos.image.Bitonal;
@@ -281,8 +282,15 @@ public class PrintService implements InitializingBean {
 		s.put(18, PrinterStatus.PAPER_OUT);
 		s.put(19, PrinterStatus.PAPER_OUT);
 
-		SerialPrinter ss = new SerialPrinter("/dev/ttyUSB0", "SRP-500", 0xFF, s); //TODO
-
-		stream = ss.getOutputStream();
+		try {
+			SerialPrinter ss = new SerialPrinter(printerDevice, "SRP-500", 0xFF, s); //TODO
+			stream = ss.getOutputStream();
+		} catch (SerialPortInvalidPortException e) {
+			if (printerDisable) {
+				System.err.println("Unable to initialise device: " + printerDevice + ", ignoring as printer disabled");
+			} else {
+				throw e;
+			}
+		}
 	}
 }
