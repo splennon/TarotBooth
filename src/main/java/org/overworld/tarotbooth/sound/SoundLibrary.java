@@ -14,10 +14,10 @@ import javafx.scene.media.MediaPlayer;
 @Component
 public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 
-	private Map<String, MediaPlayer> cache = new  HashMap<String, MediaPlayer>();
-	
+	private Map<String, MediaPlayer> cache = new HashMap<String, MediaPlayer>();
+
 	private static final long serialVersionUID = 5555776105538766715L;
-	
+
 	{
 		this.put("L01", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("L01.mp3").toString())));
 		this.put("L02", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("L02.mp3").toString())));
@@ -60,6 +60,7 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("C07P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C07P.mp3").toString())));
 		this.put("C07R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C07R.mp3").toString())));
 		this.put("C08", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C08.mp3").toString())));
+		this.put("C08P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C08P.mp3").toString())));
 		this.put("C08F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C08F.mp3").toString())));
 		this.put("C08R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C08R.mp3").toString())));
 		this.put("C09", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C09.mp3").toString())));
@@ -86,7 +87,6 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("C14F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C14F.mp3").toString())));
 		this.put("C14P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C14P.mp3").toString())));
 		this.put("C14R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("C14R.mp3").toString())));
-		this.put("CO8P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("CO8P.mp3").toString())));
 		this.put("E01", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("E01.mp3").toString())));
 		this.put("E02", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("E02.mp3").toString())));
 		this.put("E03", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("E03.mp3").toString())));
@@ -108,6 +108,7 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("M00R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M00R.mp3").toString())));
 		this.put("M01", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M01.mp3").toString())));
 		this.put("M01F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M01F.mp3").toString())));
+		this.put("M01R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M01R.mp3").toString())));
 		this.put("M01P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M01P.mp3").toString())));
 		this.put("M02", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M02.mp3").toString())));
 		this.put("M02F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M02F.mp3").toString())));
@@ -189,7 +190,6 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("M21F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M21F.mp3").toString())));
 		this.put("M21P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M21P.mp3").toString())));
 		this.put("M21R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("M21R.mp3").toString())));
-		this.put("MO1R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("MO1R.mp3").toString())));
 		this.put("P01", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P01.mp3").toString())));
 		this.put("P01F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P01F.mp3").toString())));
 		this.put("P01P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P01P.mp3").toString())));
@@ -218,6 +218,7 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("P07F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P07F.mp3").toString())));
 		this.put("P07P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P07P.mp3").toString())));
 		this.put("P07R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P07R.mp3").toString())));
+		this.put("P08", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P08.mp3").toString())));
 		this.put("P08F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P08F.mp3").toString())));
 		this.put("P08P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P08P.mp3").toString())));
 		this.put("P08R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P08R.mp3").toString())));
@@ -245,7 +246,6 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("P14F", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P14F.mp3").toString())));
 		this.put("P14P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P14P.mp3").toString())));
 		this.put("P14R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("P14R.mp3").toString())));
-		this.put("PO8", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("PO8.mp3").toString())));
 		this.put("R01", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("R01.mp3").toString())));
 		this.put("R02", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("R02.mp3").toString())));
 		this.put("R03", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("R03.mp3").toString())));
@@ -377,9 +377,9 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 		this.put("W14P", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("W14P.mp3").toString())));
 		this.put("W14R", () -> new MediaPlayer(new Media(SoundLibrary.class.getResource("W14R.mp3").toString())));
 	}
-	
+
 	public MediaPlayer getPlayerFor(String id) {
-		
+
 		if (cache.containsKey(id)) {
 			MediaPlayer found = cache.get(id);
 			found.setOnEndOfMedia(null);
@@ -391,16 +391,16 @@ public class SoundLibrary extends HashMap<String, Supplier<MediaPlayer>> {
 			return created;
 		}
 	}
-	
+
 	public MediaPlayer getPlayerFor(Card card, Position position) {
 		return getPlayerFor(card.cardId(), position);
 	}
 
 	public MediaPlayer getPlayerFor(String cardId, Position position) {
 		return getPlayerFor(switch (position) {
-			case PAST -> cardId + "P";
-			case PRESENT -> cardId + "R";
-			case FUTURE -> cardId + "F";
+		case PAST -> cardId + "P";
+		case PRESENT -> cardId + "R";
+		case FUTURE -> cardId + "F";
 		});
 	}
 }
